@@ -91,38 +91,49 @@ class Header:
         #return root_temp.decode("utf-8")
 
 """creating the Transaction object"""
+"""amended to now include the following fields: 
+Version Number: integer
+Patient Address: Hash address
+Verified Organisaiton Address: Hash address
+Hippa Field ID: Integer representing the correct category
+Summary Available: Boolean
+Data: Encrypted pointer to Data in VO Database
+Requestor Address: Null (Null for new transaction, input if there is arequest to share data)
+Approval signature: Signature hash
+Transaction hash: Hash"""
+
 class Transaction:
-    def __init__(self, ListOfInputs, ListOfOutputs):
+    def __init__(self, Patient_Ad, VO_Ad, H_ID, Summ_Av, Pointer, App_Sig):
         self.VersionNumber = 1 #default
-        self.ListOfInputs = ListOfInputs #this list is input at creation
-        self.InCounter = len(self.ListOfInputs) #i set this to be the number of distinct inputs
-        self.ListOfOutputs = ListOfOutputs #this list is input at creation
-        self.OutCounter = len(self.ListOfOutputs) #i set this to be the number of distinct outputs
+        self.PatientAddress = Patient_Ad #input at creation
+        self.VOAddress = VO_Ad #input at creation
+        self.HippaID = H_ID #input at creation
+        self.SummaryAvail = Summ_Av #input at creation
+        self.Data = Pointer #input at creation
+        self.RequestorAddress = 'Null' #default
+        self.Approval = App_Sig #input at creation
         self.TransactionHash = self.transaction_hash()
 
     """computing the Transaction hash"""
     def transaction_hash(self):
-        string_to_hash = str(self.VersionNumber) + str(self.InCounter)
-        for i in range(len(self.ListOfInputs)):
-            string_to_hash += str(self.ListOfInputs[i])
-        string_to_hash += str(self.OutCounter)
-        for i in range(len(self.ListOfOutputs)):
-            string_to_hash += str(self.ListOfOutputs[i])
+        string_to_hash = str(self.VersionNumber) + str(self.PatientAddress) +str(self.VOAddress)
+        string_to_hash += str(self.HippaID)
+        string_to_hash += str(self.SummaryAvail)
+        string_to_hash += str(self.Data)
+        string_to_hash += str(self.RequestorAddress)
+        string_to_hash += str(self.Approval)
         bytes_to_hash = bytes(string_to_hash, "utf-8")
         return sha256(sha256(bytes_to_hash).hexdigest().encode("utf-8")).hexdigest()
 
     def printTransaction(self):
         print(f"Version Number is {self.VersionNumber}")
-        print(f"In Counter is {self.InCounter}")
-        l_i = len(self.ListOfInputs)
-        print(f"There are {l_i} inputs and the List of Inputs is:")
-        for i in range(l_i):
-            print(self.ListOfInputs[i])
-        print(f"Out Counter is {self.OutCounter}")
-        l_o = len(self.ListOfOutputs)
-        print(f"There are {l_o} outputs and the List of Outputs is:")
-        for i in range(l_o):
-            print(self.ListOfOutputs[i])
+        print(f"Patient Address is {self.PatientAddress}")
+        print(f"Verified Organisation Address is {self.VOAddress}")
+        print(f"Hippa ID is {self.HippaID}")
+        print(f"Summary Available is {self.SummaryAvail}")
+        print(f"Data Pointer is {self.Data}")
+        print(f"Requesting Address is {self.RequestorAddress}")
+        print(f"Approving Signature is {self.Approval}")
         print(f"The Transaction Hash is {self.TransactionHash}")
 
 """creating the object to hold the Blockchain itself"""
@@ -133,7 +144,7 @@ class Blockchain:
 
     """building the Genesis block with Prev Hash 00000000000000000000"""    
     def genesis_block(self):
-        genesistransaction = Transaction(["this is the only transaction in the genesis block"], ["created by MarkS"])
+        genesistransaction = Transaction("Genesis Patient", "Genesis VO", 1, True, "Genesis Pointer", "Genesis Sig")
         genesisblock = Block([genesistransaction])
         genesisblock.hashPrevBlock = "00000000000000000000"
         self.blockchain.append(genesisblock)
@@ -175,20 +186,68 @@ class Blockchain:
         if counter == 0:
             print("There is no transaction with that hash")
 
+    """you can search for transactions associated with a Patient Address.  This will return 
+    all the associated transactions.  This is also called by the function below
+    print_patient_transactions()"""
+    def search_patient_transactions(self, patient_add):
+        patient_transacts = []
+        for i in range(len(self.blockchain)):
+            for j in range(len(self.blockchain[i].Transactions_input)):
+                if self.blockchain[i].Transactions_input[j].PatientAddress == patient_add:
+                    patient_transacts.append(self.blockchain[i].Transactions_input[j])
+        return patient_transacts
+
+    """you can print the details of all the transactions assocaiated with a Patient Address"""
+    def print_patient_transactions(self, patient_add):
+        patient_transacts = self.search_patient_transactions(patient_add)
+        n = len(patient_transacts)
+        print()
+        print(f"There are {n} records for the patient with address {patient_add}")
+        for i in range(n):
+            print()
+            print(f"Record {i+1} is")
+            print()
+            patient_transacts[i].printTransaction()
+
+    """you can search for transactions associated with a Hippa ID.  This will return 
+    all the associated transactions.  This is also called by the function below
+    print_hippa_summary()"""
+    def search_hippa_transactions(self, hippa_ID):
+        hippa_transacts = []
+        for i in range(len(self.blockchain)):
+            for j in range(len(self.blockchain[i].Transactions_input)):
+                if self.blockchain[i].Transactions_input[j].HippaID == hippa_ID:
+                    hippa_transacts.append(self.blockchain[i].Transactions_input[j])
+        return hippa_transacts
+
+    """you can print the summary details of all the transactions assocaiated with a given Hippa ID.
+    This groups patients at the same VO together (sorted by VO) before printing"""
+    def print_hippa_summary(self, hippa_ID):
+        hippa_transacts = self.search_hippa_transactions(hippa_ID)
+        n = len(hippa_transacts)
+        print()
+        print(f"There are {n} records for treatment associated with Hippa ID {hippa_ID}")
+        print()
+        hippa_transacts.sort(key=lambda Transaction: Transaction.VOAddress)
+        for i in range(n):
+            print(f"VO ID is: {hippa_transacts[i].VOAddress}, Patient Address is {hippa_transacts[i].PatientAddress}, Summary Availability is {hippa_transacts[i].SummaryAvail}")
+
+
+
 """run the program with the 10 hard coded transations
 I then create 2 blocks with 5 transaction each and add these as the
 first 2 blocks in my Blockchain"""
 if __name__ == "__main__":
-    t_1 = Transaction(["aaa"], ["bbb"])
-    t_2 = Transaction(["aaa"], ["ccc"])
-    t_3 = Transaction(["aaa"], ["ddd"])
-    t_4 = Transaction(["aaa"], ["eee"])
-    t_5 = Transaction(["aaa"], ["fff"])
-    t_6 = Transaction(["zzz"], ["bbb"])
-    t_7 = Transaction(["zzz"], ["ccc"])
-    t_8 = Transaction(["zzz"], ["ddd"])
-    t_9 = Transaction(["zzz"], ["eee"])
-    t_10 = Transaction(["zzz"], ["fff"])
+    t_1 = Transaction("Patient_Add_1", "VO_Add_1", 5, True, "Pointer1", "Patient_Sig_1")
+    t_2 = Transaction("Patient_Add_2", "VO_Add_2", 25, True, "Pointer2", "Patient_Sig_2")
+    t_3 = Transaction("Patient_Add_3", "VO_Add_1", 14, False, "Pointer3", "Patient_Sig_3")
+    t_4 = Transaction("Patient_Add_4", "VO_Add_3", 234, True, "Pointer4", "Patient_Sig_4")
+    t_5 = Transaction("Patient_Add_5", "VO_Add_4", 13245, False, "Pointer5", "Patient_Sig_5")
+    t_6 = Transaction("Patient_Add_6", "VO_Add_1", 17, True, "Pointer6", "Patient_Sig_6")
+    t_7 = Transaction("Patient_Add_2", "VO_Add_2", 14, True, "Pointer7", "Patient_Sig_2")
+    t_8 = Transaction("Patient_Add_7", "VO_Add_5", 14, False, "Pointer8", "Patient_Sig_7")
+    t_9 = Transaction("Patient_Add_1", "VO_Add_6", 134, True, "Pointer9", "Patient_Sig_1")
+    t_10 = Transaction("Patient_Add_2", "VO_Add_1", 14, True, "Pointer10", "Patient_Sig_2")
 
     block_1 = Block([t_1, t_2, t_3, t_4, t_5])
     block_2 = Block([t_6, t_7, t_8, t_9, t_10])
@@ -213,13 +272,10 @@ if __name__ == "__main__":
     print()
     print("here is transacton t_4, searched for by its hash")
     print()
-    b.search_transaction('967a2ea00e4a820beafdcf6674917aa77124e384017aed35f0d7b6b5aa1e6cde')
+    b.search_transaction(t_4.TransactionHash)
 
-    #print(b.blockchain[0].hashPrevBlock)
-    #b.search_block('height', 0)
-    #b.search_block('hash', block_1.Blockhash)
-    #b.search_block('hash', "tttttttt")
-    #b.search_transaction('967a2ea00e4a820beafdcf6674917aa77124e384017aed35f0d7b6b5aa1e6cde')
-    #b.search_transaction(t_4.TransactionHash)
-    #b.search_transaction("eeeee")
+    """print all the transactions asscoiated with a given patient address"""
+    b.print_patient_transactions("Patient_Add_1")
 
+    """print all the transactions asscoiated with a given Hippa ID"""
+    b.print_hippa_summary(14)
