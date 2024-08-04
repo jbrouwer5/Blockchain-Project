@@ -2,7 +2,7 @@ from hashlib import sha256
 from datetime import datetime, timedelta
 from binascii import unhexlify, hexlify
 
-
+import csv
 import os
 import hashlib
 import ecdsa
@@ -424,50 +424,46 @@ def load_private_key(pem_file):
         private_key = serialization.load_pem_private_key(key_file.read(), password=None)
     return private_key
 
+def load_transactions_from_csv(file_path):
+    transactions = []
+    with open(file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            patient_address = row['first_name'] + "_" + row['last_name']
+            vo_address = row['email']
+            hippa_id = int(row['id'])  # Assuming HIPAA ID is unique and can be mapped from 'id' column
+            summary_available = row['gender'] in ['Male', 'Female']  # Example logic to determine summary availability
+            data_pointer = row['email']  # Example logic to use email as data pointer
+            approval_signature = 'Signature_' + row['first_name']  # Example logic for approval signature
+            transaction = Transaction(patient_address, vo_address, hippa_id, summary_available, data_pointer, approval_signature)
+            transactions.append(transaction)
+    return transactions
 
 
-"""run the program with the 10 hard coded transations
-I then create 2 blocks with 5 transaction each and add these as the
-first 2 blocks in my Blockchain"""
 if __name__ == "__main__":
-    t_1 = Transaction("Patient_Add_1", "VO_Add_1", 5, True, "Pointer1", "Patient_Sig_1")
-    t_2 = Transaction("Patient_Add_2", "VO_Add_2", 25, True, "Pointer2", "Patient_Sig_2")
-    t_3 = Transaction("Patient_Add_3", "VO_Add_1", 14, False, "Pointer3", "Patient_Sig_3")
-    t_4 = Transaction("Patient_Add_4", "VO_Add_3", 234, True, "Pointer4", "Patient_Sig_4")
-    t_5 = Transaction("Patient_Add_5", "VO_Add_4", 13245, False, "Pointer5", "Patient_Sig_5")
-    t_6 = Transaction("Patient_Add_6", "VO_Add_1", 17, True, "Pointer6", "Patient_Sig_6")
-    t_7 = Transaction("Patient_Add_2", "VO_Add_2", 14, True, "Pointer7", "Patient_Sig_2")
-    t_8 = Transaction("Patient_Add_7", "VO_Add_5", 14, False, "Pointer8", "Patient_Sig_7")
-    t_9 = Transaction("Patient_Add_1", "VO_Add_6", 134, True, "Pointer9", "Patient_Sig_1")
-    t_10 = Transaction("Patient_Add_2", "VO_Add_1", 14, True, "Pointer10", "Patient_Sig_2")
+    transactions = load_transactions_from_csv('MOCK_DATA.csv')
 
-    block_1 = Block([t_1, t_2, t_3, t_4, t_5])
-    block_2 = Block([t_6, t_7, t_8, t_9, t_10])
-    #block_1.printBlock()
-    #block_2.printBlock()
-    #print(block_1.BlockHeader.MerkleTree)
-    #print(block_1.BlockHeader.hashMerkleRoot)
-    #print(block_1.BlockHeader.hashPrevBlock)
-    #t_4.printTransaction()
+    block_1 = Block(transactions[:5])
+    block_2 = Block(transactions[5:10])
 
     b = Blockchain()
     b.add_block(block_1)
     b.add_block(block_2)
 
-    """search for a block by block height"""
-    print()
-    print("Here is the block at height 1 in the Blockchain")
-    print()
+    
+    print("\nHere is the block at height 1 in the Blockchain\n")
+    
     b.search_block('height', 1)
 
-    """search for a transaction by its hash"""
-    print()
-    print("here is transacton t_4, searched for by its hash")
-    print()
-    b.search_transaction(t_4.TransactionHash)
+    
+    print("\nHere is a transaction searched by its hash\n")
+    
+    b.search_transaction(transactions[3].TransactionHash)
 
-    """print all the transactions asscoiated with a given patient address"""
-    b.print_patient_transactions("Patient_Add_1")
+    
+    print("\nPrinting all transactions associated with a given patient address")
+    b.print_patient_transactions(transactions[0].PatientAddress)
 
-    """print all the transactions asscoiated with a given Hippa ID"""
-    b.print_hippa_summary(14)
+    
+    print("\nPrinting summary of transactions associated with a given HIPAA ID")
+    b.print_hippa_summary(transactions[0].HippaID)
