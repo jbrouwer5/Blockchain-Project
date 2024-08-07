@@ -1,5 +1,7 @@
 import pandas as pd
 import hashlib
+import os
+from pathlib import Path
 
 
 def double_sha256(data):
@@ -7,15 +9,23 @@ def double_sha256(data):
     return hashlib.sha256(hashlib.sha256(data).digest()).hexdigest()
 
 
-df = pd.read_csv("../MOCK_DATA.csv")
+data_dir = Path(os.path.dirname("../data/"))
 
 
-# Apply the concatenation and hashing
-df["patient_blockchain_address"] = df.apply(
-    lambda row: double_sha256(row["first_name"] + row["last_name"] + row["email"]),
-    axis=1,
-)
+for file in data_dir.glob("*.csv"):
+    df = pd.read_csv(file)
+    base_name = file.stem
 
-# Display the updated DataFrame
-print(df)
-df.to_csv("MOCK_DATA.csv", index=False)
+    df["patient_blockchain_address"] = df.apply(
+        lambda row: double_sha256(row["first_name"] + row["last_name"] + row["email"]),
+        axis=1,
+    )
+
+    df["hospital_address"] = df.apply(
+        lambda row: double_sha256(str(base_name)),
+        axis=1,
+    )
+
+    updated_file_path = data_dir / f"{base_name}.csv"
+    df.to_csv(updated_file_path, index=False)
+    print(f"Updated {file} and saved to {updated_file_path}")
