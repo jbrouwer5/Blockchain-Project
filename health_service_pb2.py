@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14health_service.proto\x12\rhealthservice\"M\n\'RequestUserRecordAccessResearcherToUser\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\"j\n\'ReponseUserRecordAccessUserToResearcher\x12\"\n\x1apatient_blcokchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"{\n%RequestUserRecordAccessResearcherToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\x12\x11\n\tjwt_token\x18\x03 \x01(\t\"i\n&ResponseUserRecordAccessVOToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"\x1d\n\x1b\x42roadcastTransactionToChain\"V\n\x1dSendUserAuthTokenToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"N\n\x15SendUserAuthTokenToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"/\n\x1c\x43onfirmUserAuthTokenVOToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"7\n$ConfirmUserAuthTokenResearcherToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\xa3\x04\n\rhealthservice\x12\x95\x01\n#getUserRecordAccessResearcherToUser\x12\x36.healthservice.RequestUserRecordAccessResearcherToUser\x1a\x36.healthservice.ReponseUserRecordAccessUserToResearcher\x12\x88\x01\n\x19getUserrecordAccessFromVO\x12\x34.healthservice.RequestUserRecordAccessResearcherToVO\x1a\x35.healthservice.ResponseUserRecordAccessVOToResearcher\x12\x82\x01\n\x1dsendUserAuthTokenToResearcher\x12,.healthservice.SendUserAuthTokenToResearcher\x1a\x33.healthservice.ConfirmUserAuthTokenResearcherToUser\x12j\n\x15sendUserAuthTokenToVO\x12$.healthservice.SendUserAuthTokenToVO\x1a+.healthservice.ConfirmUserAuthTokenVOToUserb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14health_service.proto\x12\rhealthservice\"M\n\'RequestUserRecordAccessResearcherToUser\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\"k\n(ResponseUserRecordAccessUserToResearcher\x12\"\n\x1apatient_blcokchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"{\n%RequestUserRecordAccessResearcherToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\x12\x11\n\tjwt_token\x18\x03 \x01(\t\"i\n&ResponseUserRecordAccessVOToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"\x1d\n\x1b\x42roadcastTransactionToChain\"V\n\x1dSendUserAuthTokenToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"N\n\x15SendUserAuthTokenToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"/\n\x1c\x43onfirmUserAuthTokenVOToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"7\n$ConfirmUserAuthTokenResearcherToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\xac\x04\n\rHealthService\x12\x96\x01\n#getUserRecordAccessResearcherToUser\x12\x36.healthservice.RequestUserRecordAccessResearcherToUser\x1a\x37.healthservice.ResponseUserRecordAccessUserToResearcher\x12\x90\x01\n!getUserRecordAccessResearcherToVO\x12\x34.healthservice.RequestUserRecordAccessResearcherToVO\x1a\x35.healthservice.ResponseUserRecordAccessVOToResearcher\x12\x82\x01\n\x1dsendUserAuthTokenToResearcher\x12,.healthservice.SendUserAuthTokenToResearcher\x1a\x33.healthservice.ConfirmUserAuthTokenResearcherToUser\x12j\n\x15sendUserAuthTokenToVO\x12$.healthservice.SendUserAuthTokenToVO\x1a+.healthservice.ConfirmUserAuthTokenVOToUserb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,22 +23,22 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOUSER']._serialized_start=39
   _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOUSER']._serialized_end=116
-  _globals['_REPONSEUSERRECORDACCESSUSERTORESEARCHER']._serialized_start=118
-  _globals['_REPONSEUSERRECORDACCESSUSERTORESEARCHER']._serialized_end=224
-  _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOVO']._serialized_start=226
-  _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOVO']._serialized_end=349
-  _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_start=351
-  _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_end=456
-  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_start=458
-  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_end=487
-  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_start=489
-  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_end=575
-  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_start=577
-  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_end=655
-  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_start=657
-  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_end=704
-  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_start=706
-  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_end=761
-  _globals['_HEALTHSERVICE']._serialized_start=764
-  _globals['_HEALTHSERVICE']._serialized_end=1311
+  _globals['_RESPONSEUSERRECORDACCESSUSERTORESEARCHER']._serialized_start=118
+  _globals['_RESPONSEUSERRECORDACCESSUSERTORESEARCHER']._serialized_end=225
+  _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOVO']._serialized_start=227
+  _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOVO']._serialized_end=350
+  _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_start=352
+  _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_end=457
+  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_start=459
+  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_end=488
+  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_start=490
+  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_end=576
+  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_start=578
+  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_end=656
+  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_start=658
+  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_end=705
+  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_start=707
+  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_end=762
+  _globals['_HEALTHSERVICE']._serialized_start=765
+  _globals['_HEALTHSERVICE']._serialized_end=1321
 # @@protoc_insertion_point(module_scope)

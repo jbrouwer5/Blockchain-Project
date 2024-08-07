@@ -11,11 +11,10 @@ package healthservice;
 message RequestUserRecordAccessResearcherToUser {
   string patient_blockchain_address = 1;
 }
-message ReponseUserRecordAccessUserToResearcher {
+message ResponseUserRecordAccessUserToResearcher {
   string patient_blcokchain_address = 1;
   string signed_data_request = 2; // signed with researcher and user keys
 }
-
 message RequestUserRecordAccessResearcherToVO {
   string patient_blockchain_address = 1;
   string signed_data_request = 2;
@@ -46,13 +45,13 @@ message SendUserAuthTokenToVO {
 message ConfirmUserAuthTokenVOToUser { bool success = 1; }
 message ConfirmUserAuthTokenResearcherToUser { bool success = 1; }
 
-service healthservice {
+service HealthService {
 
   rpc getUserRecordAccessResearcherToUser(
       RequestUserRecordAccessResearcherToUser)
-      returns (ReponseUserRecordAccessUserToResearcher);
+      returns (ResponseUserRecordAccessUserToResearcher);
 
-  rpc getUserrecordAccessFromVO(RequestUserRecordAccessResearcherToVO)
+  rpc getUserRecordAccessResearcherToVO(RequestUserRecordAccessResearcherToVO)
       returns (ResponseUserRecordAccessVOToResearcher);
 
   rpc sendUserAuthTokenToResearcher(SendUserAuthTokenToResearcher)

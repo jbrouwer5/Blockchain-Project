@@ -30,7 +30,7 @@ if _version_not_supported:
     )
 
 
-class healthserviceStub(object):
+class HealthServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -40,28 +40,28 @@ class healthserviceStub(object):
             channel: A grpc.Channel.
         """
         self.getUserRecordAccessResearcherToUser = channel.unary_unary(
-                '/healthservice.healthservice/getUserRecordAccessResearcherToUser',
+                '/healthservice.HealthService/getUserRecordAccessResearcherToUser',
                 request_serializer=health__service__pb2.RequestUserRecordAccessResearcherToUser.SerializeToString,
-                response_deserializer=health__service__pb2.ReponseUserRecordAccessUserToResearcher.FromString,
+                response_deserializer=health__service__pb2.ResponseUserRecordAccessUserToResearcher.FromString,
                 _registered_method=True)
-        self.getUserrecordAccessFromVO = channel.unary_unary(
-                '/healthservice.healthservice/getUserrecordAccessFromVO',
+        self.getUserRecordAccessResearcherToVO = channel.unary_unary(
+                '/healthservice.HealthService/getUserRecordAccessResearcherToVO',
                 request_serializer=health__service__pb2.RequestUserRecordAccessResearcherToVO.SerializeToString,
                 response_deserializer=health__service__pb2.ResponseUserRecordAccessVOToResearcher.FromString,
                 _registered_method=True)
         self.sendUserAuthTokenToResearcher = channel.unary_unary(
-                '/healthservice.healthservice/sendUserAuthTokenToResearcher',
+                '/healthservice.HealthService/sendUserAuthTokenToResearcher',
                 request_serializer=health__service__pb2.SendUserAuthTokenToResearcher.SerializeToString,
                 response_deserializer=health__service__pb2.ConfirmUserAuthTokenResearcherToUser.FromString,
                 _registered_method=True)
         self.sendUserAuthTokenToVO = channel.unary_unary(
-                '/healthservice.healthservice/sendUserAuthTokenToVO',
+                '/healthservice.HealthService/sendUserAuthTokenToVO',
                 request_serializer=health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
                 response_deserializer=health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
                 _registered_method=True)
 
 
-class healthserviceServicer(object):
+class HealthServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def getUserRecordAccessResearcherToUser(self, request, context):
@@ -70,7 +70,7 @@ class healthserviceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def getUserrecordAccessFromVO(self, request, context):
+    def getUserRecordAccessResearcherToVO(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -89,15 +89,15 @@ class healthserviceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_healthserviceServicer_to_server(servicer, server):
+def add_HealthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'getUserRecordAccessResearcherToUser': grpc.unary_unary_rpc_method_handler(
                     servicer.getUserRecordAccessResearcherToUser,
                     request_deserializer=health__service__pb2.RequestUserRecordAccessResearcherToUser.FromString,
-                    response_serializer=health__service__pb2.ReponseUserRecordAccessUserToResearcher.SerializeToString,
+                    response_serializer=health__service__pb2.ResponseUserRecordAccessUserToResearcher.SerializeToString,
             ),
-            'getUserrecordAccessFromVO': grpc.unary_unary_rpc_method_handler(
-                    servicer.getUserrecordAccessFromVO,
+            'getUserRecordAccessResearcherToVO': grpc.unary_unary_rpc_method_handler(
+                    servicer.getUserRecordAccessResearcherToVO,
                     request_deserializer=health__service__pb2.RequestUserRecordAccessResearcherToVO.FromString,
                     response_serializer=health__service__pb2.ResponseUserRecordAccessVOToResearcher.SerializeToString,
             ),
@@ -113,13 +113,13 @@ def add_healthserviceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'healthservice.healthservice', rpc_method_handlers)
+            'healthservice.HealthService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('healthservice.healthservice', rpc_method_handlers)
+    server.add_registered_method_handlers('healthservice.HealthService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class healthservice(object):
+class HealthService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -136,9 +136,9 @@ class healthservice(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/healthservice.healthservice/getUserRecordAccessResearcherToUser',
+            '/healthservice.HealthService/getUserRecordAccessResearcherToUser',
             health__service__pb2.RequestUserRecordAccessResearcherToUser.SerializeToString,
-            health__service__pb2.ReponseUserRecordAccessUserToResearcher.FromString,
+            health__service__pb2.ResponseUserRecordAccessUserToResearcher.FromString,
             options,
             channel_credentials,
             insecure,
@@ -150,7 +150,7 @@ class healthservice(object):
             _registered_method=True)
 
     @staticmethod
-    def getUserrecordAccessFromVO(request,
+    def getUserRecordAccessResearcherToVO(request,
             target,
             options=(),
             channel_credentials=None,
@@ -163,7 +163,7 @@ class healthservice(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/healthservice.healthservice/getUserrecordAccessFromVO',
+            '/healthservice.HealthService/getUserRecordAccessResearcherToVO',
             health__service__pb2.RequestUserRecordAccessResearcherToVO.SerializeToString,
             health__service__pb2.ResponseUserRecordAccessVOToResearcher.FromString,
             options,
@@ -190,7 +190,7 @@ class healthservice(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/healthservice.healthservice/sendUserAuthTokenToResearcher',
+            '/healthservice.HealthService/sendUserAuthTokenToResearcher',
             health__service__pb2.SendUserAuthTokenToResearcher.SerializeToString,
             health__service__pb2.ConfirmUserAuthTokenResearcherToUser.FromString,
             options,
@@ -217,7 +217,7 @@ class healthservice(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/healthservice.healthservice/sendUserAuthTokenToVO',
+            '/healthservice.HealthService/sendUserAuthTokenToVO',
             health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
             health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
             options,
