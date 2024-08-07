@@ -117,13 +117,13 @@ Transaction hash: Hash"""
 class Transaction:
     def __init__(self, Patient_Ad, VO_Ad, H_ID, Summ_Av, Pointer, App_Sig):
         self.VersionNumber = 1 #default
-        self.PatientAddress = Patient_Ad #input at creation
-        self.VOAddress = VO_Ad #input at creation
-        self.HippaID = H_ID #input at creation
-        self.SummaryAvail = Summ_Av #input at creation
-        self.Data = Pointer #input at creation
-        self.RequestorAddress = 'Null' #default
-        self.Approval = App_Sig #input at creation
+        self.PatientAddress = Patient_Ad #input from database at creation
+        self.VOAddress = VO_Ad #input from databse at creation
+        self.HippaID = H_ID #input from database at creation
+        self.SummaryAvail = True #default
+        self.Data = Pointer #need to call pointer(database_ID, PatientAddress, VOAddress) from Wallet
+        self.RequestorAddress = 'Null' #default at creation.  This is updated to RequestorAddress when generating an aaproval_transaction
+        self.Approval = 'Null' #default at creation.  This is updated to call sig_app(Data, PatientAddress, RequestorAddress) from wallet when generating an approval_transaction
         self.TransactionHash = self.transaction_hash()
 
     """computing the Transaction hash"""
