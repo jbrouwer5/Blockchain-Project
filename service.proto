@@ -1,0 +1,62 @@
+syntax = "proto3"
+
+    package healthservice;
+
+// This is interface exported by the server.
+
+// define request and response structure for rpc calls
+
+// Defines the User/Researcher data access request grpc communicate data
+// structure
+message RequestUserRecordAccessResearcherToUser {
+  string patient_blockchain_address = 1;
+}
+message ReponseUserRecordAccessUserToResearcher {
+  string patient_blcokchain_address = 1;
+  string signed_data_request = 2 // signed with researcher and user keys
+}
+
+message RequestUserRecordAccessResearcherToVO {
+  string patient_blockchain_address = 1;
+  string signed_data_request = 2;
+  string jwt_token = 3;
+}
+message ResponseUserRecordAccessVOToResearcher {
+  string patient_blockchain_address = 1;
+  // data chunk sent back to chain. Need to confirm exactly what's being sent
+  // across the wire
+  string signed_data_request = 2;
+}
+
+// TODO: We might not need this but I think we will.
+message BroadcastTransactionToChain {
+  // TODO: define the transaction structure
+}
+
+// TODO: Confirm with Graham that this is the correct structure
+message SendUserAuthTokenToResearcher {
+  string patient_blockchain_address = 1;
+  string jwt_token = 2;
+}
+message SendUserAuthTokenToVO {
+  string patient_blockchain_address = 1;
+  string jwt_token = 2;
+}
+
+message ConfirmUserAuthTokenVOToUser { bool success = 1; }
+message ConfirmUserAuthTokenResearcherToUser { bool success = 1; }
+
+service healthservice {
+
+  rpc getUserRecordAccessResearcherToUser(
+      RequestUserRecordAccessResearcherToUser)
+      returns (ReponseUserRecordAccessUserToResearcher);
+
+  rpc getUserrecordAccessFromVO(RequestUserRecordAccessResearcherToVO)
+      returns (ResponseUserRecordAccessVOToResearcher);
+
+  rpc sendUserAuthTokenToResearcher(SendUserAuthTokenToResearcher)
+      returns (ConfirmUserAuthTokenResearcherToUser);
+  rpc sendUserAuthTokenToVO(SendUserAuthTokenToVO)
+      returns (ConfirmUserAuthTokenVOToUser);
+}
