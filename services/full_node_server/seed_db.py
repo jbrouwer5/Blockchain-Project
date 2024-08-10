@@ -23,8 +23,8 @@ def seed_database(csv_file_path):
                 height=float(row["height"]),
                 weight=float(row["weight"]),
                 age=int(row["age"]),
-                hippa_id=int(row["Hippa_ID"]),
-                vo_address=row["VO_address"],
+                hippa_id=int(row["hippa_id"]),
+                vo_address=row["vo_address"],
                 patient_address=row["patient_address"],
             )
 

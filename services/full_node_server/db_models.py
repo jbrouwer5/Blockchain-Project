@@ -37,7 +37,7 @@ class HealthRecord(Base):
     height = Column(Float)
     weight = Column(Float)
     age = Column(Integer)
-    hippaID = Column(Integer)
+    hippa_id = Column(Integer)
     patient_address = Column(String(64))
     vo_address = Column(String(64))
 
