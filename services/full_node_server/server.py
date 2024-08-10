@@ -1,14 +1,13 @@
 import grpc
-from concurrent import futures
 import health_service_pb2
 import health_service_pb2_grpc
+import dns_seed_pb2
+import dns_seed_pb2_grpc
 import time
 import random
 import socket
+from concurrent import futures
 import threading  # if we implement the mining functions
-
-import dns_seed_pb2
-import dns_seed_pb2_grpc
 
 
 class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
