@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service Registrar {
+  rpc RegisterNode(RegistrationRequest) returns (RegistrationResponse);
+}
+
+message RegistrationRequest {
+  string version = 1;
+  string time = 2;
+  string addrMe = 3;
+}
+
+message RegistrationResponse { string last_registered_node = 1; }
