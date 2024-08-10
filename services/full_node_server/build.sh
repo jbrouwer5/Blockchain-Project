@@ -1,5 +1,5 @@
-docker rm -f FULL_NODE_1 FULL_NODE_2 FULL_NODE_3
-docker build -t full_node_image .
-docker run -d --name FULL_NODE_1 --network blockchain-net full_node_image
-docker run -d --name FULL_NODE_2 --network blockchain-net full_node_image
-docker run -d --name FULL_NODE_3 --network blockchain-net full_node_image
+docker rm -f HEALTH_NODE_1 HEALTH_NODE_2 HEALTH_NODE_3
+docker build -t health_node_image .
+docker run -d --name HEALTH_NODE_1 --network health-net health_node_image
+docker run -d --name HEALTH_NODE_2 --network health-net health_node_image
+docker run -d --name HEALTH_NODE_3 --network health-net health_node_image

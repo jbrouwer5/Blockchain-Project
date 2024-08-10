@@ -24,7 +24,7 @@ class RegistrarService(dns_seed_pb2_grpc.RegistrarServicer):
         if last_node is None:
             print(f"This is the first node. No other nodes to connect to.")
         else:
-            print(f"Sending the last registered node to the FULL_NODE: {last_node}")
+            print(f"Sending the last registered node: {last_node}")
 
         # Return the last registered node (could be None if first node)
         print(f"Returning the last registered node: {last_node}")

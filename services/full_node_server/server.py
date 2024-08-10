@@ -153,7 +153,7 @@ def register_with_dns_seed(port):
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
 
-    with grpc.insecure_channel("dns_seed:12345") as channel:
+    with grpc.insecure_channel("dns_health_seed:12345") as channel:
         stub = dns_seed_pb2_grpc.RegistrarStub(channel)
         response = stub.RegisterNode(
             dns_seed_pb2.RegistrationRequest(
@@ -176,9 +176,11 @@ def perform_handshake_with_peer(health_node_service, peer_address):
                     version="1.0",
                     time=str(time.time()),
                     addrMe=health_node_service.local_address,
-                    bestHeight=len(
-                        health_node_service.blockchain.chain
-                    ),  # Example blockchain height
+                    # TODO: change this to the height of the blockchain
+                    bestHeight=1,
+                    # bestHeight=len(
+                    #     health_node_service.blockchain.chain
+                    # ),  # Example blockchain height
                 )
             )
 
@@ -235,7 +237,6 @@ def serve():
         f"{socket.gethostbyname(socket.gethostname())}:{port}"
     )
 
-    print("Server started on port 50051")
     return server, health_node_service, port
 
 
@@ -255,6 +256,7 @@ def main():
         f"Registered with DNS_SEED. Last registered node IP from DNS_SEED: {last_peer}",
         flush=True,
     )
+
     if last_peer and last_peer != health_node_service.local_address:
         perform_handshake_with_peer(health_node_service, last_peer)
 
