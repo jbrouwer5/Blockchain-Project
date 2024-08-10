@@ -8,6 +8,8 @@ package healthservice;
 
 // Defines the User/Researcher data access request grpc communicate data
 // structure
+
+// These messages deal with authenticating a requester.
 message RequestUserRecordAccessResearcherToUser {
   string patient_blockchain_address = 1;
 }
@@ -27,11 +29,6 @@ message ResponseUserRecordAccessVOToResearcher {
   string signed_data_request = 2;
 }
 
-// TODO: We might not need this but I think we will.
-message BroadcastTransactionToChain {
-  // TODO: define the transaction structure
-}
-
 // TODO: Confirm with Graham that this is the correct structure
 message SendUserAuthTokenToResearcher {
   string patient_blockchain_address = 1;
@@ -45,6 +42,8 @@ message SendUserAuthTokenToVO {
 message ConfirmUserAuthTokenVOToUser { bool success = 1; }
 message ConfirmUserAuthTokenResearcherToUser { bool success = 1; }
 
+// These messages deal with the handshake process and the gossiping of
+// transactions and blocks
 message HandshakeRequest {
   string version = 1;
   string time = 2;
@@ -57,6 +56,28 @@ message HandshakeResponse { repeated string knownPeers = 1; }
 message NewTransactionRequest { string transaction_data = 1; }
 
 message NewBlockRequest { string block_data = 1; }
+
+// These messages deal with the retrieval of health records
+
+// Single health record
+message HealthRecordResponse {
+  int32 id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string gender = 5;
+  float height = 6;
+  float weight = 7;
+  int32 age = 8;
+  int32 HippaID = 9;
+  string patient_address = 10;
+  string vo_address = 11;
+}
+
+message GetHealthRecordsResponse { repeated health_records = 1; }
+
+// TODO What do we send to the VO as a verified requester?
+message HealthRecordRequest { Empty request = 1; }
 
 message Empty {}
 
@@ -73,6 +94,8 @@ service HealthService {
       returns (ConfirmUserAuthTokenResearcherToUser);
   rpc sendUserAuthTokenToVO(SendUserAuthTokenToVO)
       returns (ConfirmUserAuthTokenVOToUser);
+
+  rpc getHealthRecords(Empty) returns (GetHealthRecordsResponse);
 
   rpc Handshake(HandshakeRequest) returns (HandshakeResponse);
   rpc NewTransactionBroadcast(NewTransactionRequest) returns (Empty);

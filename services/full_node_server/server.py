@@ -9,14 +9,17 @@ import socket
 from concurrent import futures
 import threading  # if we implement the mining functions
 
+from sqlalchemy.orm import sessionmaker
+
 
 class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
-    def __init__(self):
+    def __init__(self, session_factory):
         self.known_peers = []
         self.mempool = ""  # TODO add mempool class
         self.blockchain = ""  # TODO add blockchain class
         self.local_address = ""  #  Set after server starts
         # TODO add miner class?
+        self.Session = session_factory
 
     def Handshake(self, request, context):
         # This function is called by the peer when it wants to establish a connection with the Full Node
@@ -144,6 +147,15 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
         response = health_service_pb2.ConfirmUserAuthTokenVOToUser()
         response.success = True
         return response
+
+    def getHealthRecordsFromDB(self, request, context):
+        session = self.Session()
+        records = session.query(HealthRecords).all()
+        session.close()
+        if records:
+            return health_service_pb2.GetHealthRecordsResponse(records=records)
+        else:
+            context.abort(grpc.StatusCode.NOT_FOUND, "No records found")
 
 
 ## Utility functions to register with DNS_SEED and perform handshake with peers
