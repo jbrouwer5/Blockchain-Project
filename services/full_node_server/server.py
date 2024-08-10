@@ -1,60 +1,23 @@
 import grpc
 from concurrent import futures
+import health_service_pb2
+import health_service_pb2_grpc
 import time
 import random
 import socket
 import threading
 
-import full_node_pb2
-import full_node_pb2_grpc
 import dns_seed_pb2
 import dns_seed_pb2_grpc
 
-from blockchain_classes import (
-    Blockchain,
-    TxnMemoryPool,
-    Miner,
-    Transaction,
-    Output,
-    Block,
-)
 
-
-class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
+class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
     def __init__(self):
         self.known_peers = []
-        self.mempool = TxnMemoryPool()  # Transaction memory pool
-        self.blockchain = Blockchain()  # Blockchain instance
-        self.miner = Miner(self.blockchain, self.mempool)  # Miner instance
-        self.mining_active = True
-        self.local_address = ""  # This will be set after the server starts
-
-    def start_mining(self):
-        while self.mining_active:
-            # Mine a block using the miner instance
-            self.miner.mine_block()
-            print(
-                f"Mined a new block: {self.blockchain.chain[-1].header.hash}",
-                flush=True,
-            )
-
-            # Broadcast the new block to all known peers
-            self.gossip_block(self.blockchain.chain[-1])
-
-            # Random sleep to reduce chance of simultaneous mining
-            time.sleep(random.randint(0, 3))
-
-    def generate_and_broadcast_transaction(self):
-        transaction = Transaction(
-            list_of_inputs=["Generated Input"],
-            list_of_outputs=[Output(random.randint(1000, 5000), "Generated Output")],
-        )
-        self.mempool.add_transaction(transaction)
-        print(f"Generated new transaction: {transaction.transaction_hash}", flush=True)
-        self.gossip_transaction(transaction)
-
-    def start(self):
-        threading.Thread(target=self.start_mining, daemon=True).start()
+        self.mempool = ""  # TODO add mempool class
+        self.blockchain = ""  # TODO add blockchain class
+        self.local_address = ""  #  Set after server starts
+        # TODO add miner class?
 
     def Handshake(self, request, context):
         # This function is called by the peer when it wants to establish a connection with the Full Node
@@ -79,7 +42,7 @@ class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
             f"Returning known peers to requester node: {requester_address}. Sending: {self.known_peers}.",
             flush=True,
         )
-        return full_node_pb2.HandshakeResponse(knownPeers=self.known_peers)
+        return health_service_pb2.HandshakeResponse(knownPeers=self.known_peers)
 
     def NewTransactionBroadcast(self, request, context):
         transaction_hash = request.transaction_data
@@ -99,7 +62,7 @@ class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
         # Random sleep to reduce chance of simultaneous mining
         time.sleep(random.randint(0, 3))
 
-        return full_node_pb2.Empty()
+        return health_service_pb2.Empty()
 
     def NewBlockBroadcast(self, request, context):
         block_hash = request.block_data
@@ -117,7 +80,7 @@ class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
             self.blockchain.add_block(block.transactions)
             self.gossip_block(block)
 
-        return full_node_pb2.Empty()
+        return health_service_pb2.Empty()
 
     def gossip_transaction(self, transaction):
         print(
@@ -127,10 +90,10 @@ class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
         for peer in self.known_peers:
             ip, port = peer.split(":")
             with grpc.insecure_channel(f"{ip}:{port}") as channel:
-                stub = full_node_pb2_grpc.FullNodeStub(channel)
+                stub = health_service_pb2_grpc.HealthServiceStub(channel)
                 try:
                     stub.NewTransactionBroadcast(
-                        full_node_pb2.NewTransactionRequest(
+                        health_service_pb2.NewTransactionRequest(
                             transaction_data=transaction.transaction_hash
                         )
                     )
@@ -145,32 +108,46 @@ class FullNodeService(full_node_pb2_grpc.FullNodeServicer):
         for peer in self.known_peers:
             ip, port = peer.split(":")
             with grpc.insecure_channel(f"{ip}:{port}") as channel:
-                stub = full_node_pb2_grpc.FullNodeStub(channel)
+                stub = health_service_pb2_grpc.HealthServiceStub(channel)
                 try:
                     stub.NewBlockBroadcast(
-                        full_node_pb2.NewBlockRequest(block_data=block.header.hash)
+                        health_service_pb2.NewBlockRequest(block_data=block.header.hash)
                     )
                 except grpc.RpcError as e:
                     print(f"Failed to broadcast block to {peer}: {e}", flush=True)
 
+    # These MUST be named the same thing as in the proto file!
+    def getUserRecordAccessResearcherToUser(self, request, context):
+        response = health_service_pb2.ReponseUserRecordAccessUserToResearcher()
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    full_node_service = FullNodeService()
-    full_node_pb2_grpc.add_FullNodeServicer_to_server(full_node_service, server)
+        # TODO: populate with actual data from blockchain classes
+        response.patient_blockchain_address = "1"
+        response.signed_data_request = "2"
+        return response
 
-    # Bind to port 0 to let the OS choose an available port
-    port = server.add_insecure_port("[::]:0")
-    server.start()
+    def getUserRecordAccessResearcherToVO(self, request, context):
+        response = health_service_pb2.ResponseUserRecordAccessVOToResearcher()
+        patient_blockchain_address = request.patient_blockchain_address
+        signed_data_request = request.signed_data_request
+        jwt_token = request.jwt_token
+        return response
 
-    # Set the dynamically assigned port in the FullNodeService instance
-    full_node_service.local_address = (
-        f"{socket.gethostbyname(socket.gethostname())}:{port}"
-    )
+    def sendUserAuthTokenToResearcher(self, request, context):
+        patient_blockchain_address = request.patient_blockchain_address
+        jwt_token = request.jwt_token
+        response = health_service_pb2.ConfirmUserAuthTokenResearcherToUser()
+        response.success = True
+        return response
 
-    return server, full_node_service, port
+    def sendUserAuthTokenToVO(self, request, context):
+        patient_blockchain_address = request.patient_blockchain_address
+        jwt_token = request.jwt_token
+        response = health_service_pb2.ConfirmUserAuthTokenVOToUser()
+        response.success = True
+        return response
 
 
+## Utility functions to register with DNS_SEED and perform handshake with peers
 def register_with_dns_seed(port):
     # Use socket to get the current IP address of the host
     hostname = socket.gethostname()
@@ -188,19 +165,19 @@ def register_with_dns_seed(port):
         return response.last_registered_node
 
 
-def perform_handshake_with_peer(full_node_service, peer_address):
+def perform_handshake_with_peer(health_node_service, peer_address):
     ip, port = peer_address.split(":")
     with grpc.insecure_channel(f"{ip}:{port}") as channel:
-        stub = full_node_pb2_grpc.FullNodeStub(channel)
+        stub = health_service_pb2_grpc.HealthServiceStub(channel)
         try:
             print(f"Calling handshake function on {peer_address}", flush=True)
             response = stub.Handshake(
-                full_node_pb2.HandshakeRequest(
+                health_service_pb2.HandshakeRequest(
                     version="1.0",
                     time=str(time.time()),
-                    addrMe=full_node_service.local_address,
+                    addrMe=health_node_service.local_address,
                     bestHeight=len(
-                        full_node_service.blockchain.chain
+                        health_node_service.blockchain.chain
                     ),  # Example blockchain height
                 )
             )
@@ -210,31 +187,31 @@ def perform_handshake_with_peer(full_node_service, peer_address):
                 flush=True,
             )
             if (
-                peer_address not in full_node_service.known_peers
-                and peer_address != full_node_service.local_address
+                peer_address not in health_node_service.known_peers
+                and peer_address != health_node_service.local_address
             ):
                 print(
                     f"Confirmed {peer_address} is valid. Adding {peer_address} to known peers",
                     flush=True,
                 )
-                full_node_service.known_peers.append(peer_address)
+                health_node_service.known_peers.append(peer_address)
 
             for peer in response.knownPeers:
                 if (
-                    peer != full_node_service.local_address
-                    and peer not in full_node_service.known_peers
+                    peer != health_node_service.local_address
+                    and peer not in health_node_service.known_peers
                 ):
                     print(
                         f"Adding received {peer} from {peer_address} to known peers.",
                         flush=True,
                     )
-                    full_node_service.known_peers.append(peer)
-                elif peer == full_node_service.local_address:
+                    health_node_service.known_peers.append(peer)
+                elif peer == health_node_service.local_address:
                     print(
                         f"Received own address {peer} in handshake response. Not adding.",
                         flush=True,
                     )
-                elif peer in full_node_service.known_peers:
+                elif peer in health_node_service.known_peers:
                     print(
                         f"Received peer: {peer} is already in known peers. Not adding.",
                         flush=True,
@@ -243,18 +220,27 @@ def perform_handshake_with_peer(full_node_service, peer_address):
             print(f"Failed to perform handshake with {peer_address}: {e}", flush=True)
 
 
-def wait_for_peers(full_node_service, expected_peer_count):
-    while len(full_node_service.known_peers) < expected_peer_count:
-        print(
-            f"Waiting for peers... Currently known peers: {len(full_node_service.known_peers)}",
-            flush=True,
-        )
-        time.sleep(2)
-    print("All peers discovered! Ready to start mining.", flush=True)
+# Function to start the server
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    health_node_service = HealthNodeService()
+    health_service_pb2_grpc.add_HealthServiceServicer_to_server(
+        health_node_service, server
+    )
+    port = server.add_insecure_port("[::]:0")
+    server.start()
+
+    # Set the dynamically assigned port in the FullNodeService instance
+    health_node_service.local_address = (
+        f"{socket.gethostbyname(socket.gethostname())}:{port}"
+    )
+
+    print("Server started on port 50051")
+    return server, health_node_service, port
 
 
 def main():
-    server, full_node_service, port = (
+    server, health_node_service, port = (
         serve()
     )  # Start the server and get the dynamically assigned port
     hostname = socket.gethostname()
@@ -269,22 +255,12 @@ def main():
         f"Registered with DNS_SEED. Last registered node IP from DNS_SEED: {last_peer}",
         flush=True,
     )
-    if last_peer and last_peer != full_node_service.local_address:
-        perform_handshake_with_peer(full_node_service, last_peer)
+    if last_peer and last_peer != health_node_service.local_address:
+        perform_handshake_with_peer(health_node_service, last_peer)
 
     # Handshake with all known peers
-    for peer in full_node_service.known_peers:
-        perform_handshake_with_peer(full_node_service, peer)
-
-    # Assume the network consists of 3 nodes (including the current node)
-    expected_peer_count = 2  # Number of other nodes expected in the network
-
-    # Wait until all peers are known before starting mining
-    wait_for_peers(full_node_service, expected_peer_count)
-
-    # Start mining
-    print("All peers discovered, starting mining...", flush=True)
-    full_node_service.start()
+    for peer in health_node_service.known_peers:
+        perform_handshake_with_peer(health_node_service, peer)
 
     try:
         while True:

@@ -45,6 +45,21 @@ message SendUserAuthTokenToVO {
 message ConfirmUserAuthTokenVOToUser { bool success = 1; }
 message ConfirmUserAuthTokenResearcherToUser { bool success = 1; }
 
+message HandshakeRequest {
+  string version = 1;
+  string time = 2;
+  string addrMe = 3;
+  int32 bestHeight = 4;
+}
+
+message HandshakeResponse { repeated string knownPeers = 1; }
+
+message NewTransactionRequest { string transaction_data = 1; }
+
+message NewBlockRequest { string block_data = 1; }
+
+message Empty {}
+
 service HealthService {
 
   rpc getUserRecordAccessResearcherToUser(
@@ -58,4 +73,8 @@ service HealthService {
       returns (ConfirmUserAuthTokenResearcherToUser);
   rpc sendUserAuthTokenToVO(SendUserAuthTokenToVO)
       returns (ConfirmUserAuthTokenVOToUser);
+
+  rpc Handshake(HandshakeRequest) returns (HandshakeResponse);
+  rpc NewTransactionBroadcast(NewTransactionRequest) returns (Empty);
+  rpc NewBlockBroadcast(NewBlockRequest) returns (Empty);
 }

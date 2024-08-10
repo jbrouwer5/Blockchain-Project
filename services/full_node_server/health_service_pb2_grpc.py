@@ -59,6 +59,21 @@ class HealthServiceStub(object):
                 request_serializer=health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
                 response_deserializer=health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
                 _registered_method=True)
+        self.Handshake = channel.unary_unary(
+                '/healthservice.HealthService/Handshake',
+                request_serializer=health__service__pb2.HandshakeRequest.SerializeToString,
+                response_deserializer=health__service__pb2.HandshakeResponse.FromString,
+                _registered_method=True)
+        self.NewTransactionBroadcast = channel.unary_unary(
+                '/healthservice.HealthService/NewTransactionBroadcast',
+                request_serializer=health__service__pb2.NewTransactionRequest.SerializeToString,
+                response_deserializer=health__service__pb2.Empty.FromString,
+                _registered_method=True)
+        self.NewBlockBroadcast = channel.unary_unary(
+                '/healthservice.HealthService/NewBlockBroadcast',
+                request_serializer=health__service__pb2.NewBlockRequest.SerializeToString,
+                response_deserializer=health__service__pb2.Empty.FromString,
+                _registered_method=True)
 
 
 class HealthServiceServicer(object):
@@ -88,6 +103,24 @@ class HealthServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Handshake(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def NewTransactionBroadcast(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def NewBlockBroadcast(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_HealthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -110,6 +143,21 @@ def add_HealthServiceServicer_to_server(servicer, server):
                     servicer.sendUserAuthTokenToVO,
                     request_deserializer=health__service__pb2.SendUserAuthTokenToVO.FromString,
                     response_serializer=health__service__pb2.ConfirmUserAuthTokenVOToUser.SerializeToString,
+            ),
+            'Handshake': grpc.unary_unary_rpc_method_handler(
+                    servicer.Handshake,
+                    request_deserializer=health__service__pb2.HandshakeRequest.FromString,
+                    response_serializer=health__service__pb2.HandshakeResponse.SerializeToString,
+            ),
+            'NewTransactionBroadcast': grpc.unary_unary_rpc_method_handler(
+                    servicer.NewTransactionBroadcast,
+                    request_deserializer=health__service__pb2.NewTransactionRequest.FromString,
+                    response_serializer=health__service__pb2.Empty.SerializeToString,
+            ),
+            'NewBlockBroadcast': grpc.unary_unary_rpc_method_handler(
+                    servicer.NewBlockBroadcast,
+                    request_deserializer=health__service__pb2.NewBlockRequest.FromString,
+                    response_serializer=health__service__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -220,6 +268,87 @@ class HealthService(object):
             '/healthservice.HealthService/sendUserAuthTokenToVO',
             health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
             health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Handshake(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/healthservice.HealthService/Handshake',
+            health__service__pb2.HandshakeRequest.SerializeToString,
+            health__service__pb2.HandshakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def NewTransactionBroadcast(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/healthservice.HealthService/NewTransactionBroadcast',
+            health__service__pb2.NewTransactionRequest.SerializeToString,
+            health__service__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def NewBlockBroadcast(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/healthservice.HealthService/NewBlockBroadcast',
+            health__service__pb2.NewBlockRequest.SerializeToString,
+            health__service__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
