@@ -1,4 +1,4 @@
-id,first_name,last_name,email,gender,height,weight,medical_id,hospital_address,patient_blockchain_address
+id,first_name,last_name,email,gender,height,weight,Hippa_ID,VO_address,patient_address
 1,Wenona,Pendre,wpendre0@a8.net,Female,59.36,226.35,84,
 2,Roseanna,Patmore,rpatmore1@yahoo.co.jp,Female,67.88,149.78,67,
 3,Mimi,Limmer,mlimmer2@angelfire.com,Female,68.76,109.69,3,
