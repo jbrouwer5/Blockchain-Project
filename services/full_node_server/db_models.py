@@ -27,7 +27,7 @@ Base = declarative_base()
 # VO_address (double_sha256 hash).  This is the double sha256 of the VO name
 
 
-class HealthRecords(Base):
+class HealthRecord(Base):
     __tablename__ = "health_records"
     id = Column(Integer, primary_key=True, autoincrement=True)
     first_name = Column(String)
@@ -37,7 +37,7 @@ class HealthRecords(Base):
     height = Column(Float)
     weight = Column(Float)
     age = Column(Integer)
-    HippaID = Column(Integer)
+    hippaID = Column(Integer)
     patient_address = Column(String(64))
     vo_address = Column(String(64))
 
