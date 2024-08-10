@@ -73,11 +73,12 @@ message HealthRecordResponse {
   string patient_address = 10;
   string vo_address = 11;
 }
-
-message GetHealthRecordsResponse { repeated health_records = 1; }
+message HealthRecordListResponse {
+  repeated HealthRecordResponse health_records = 1;
+}
 
 // TODO What do we send to the VO as a verified requester?
-message HealthRecordRequest { Empty request = 1; }
+message GetHealthRecordsRequest { Empty request = 1; }
 
 message Empty {}
 
@@ -95,7 +96,8 @@ service HealthService {
   rpc sendUserAuthTokenToVO(SendUserAuthTokenToVO)
       returns (ConfirmUserAuthTokenVOToUser);
 
-  rpc getHealthRecords(Empty) returns (GetHealthRecordsResponse);
+  rpc getHealthRecords(GetHealthRecordsRequest)
+      returns (HealthRecordListResponse);
 
   rpc Handshake(HandshakeRequest) returns (HandshakeResponse);
   rpc NewTransactionBroadcast(NewTransactionRequest) returns (Empty);
