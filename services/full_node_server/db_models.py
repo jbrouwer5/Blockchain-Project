@@ -43,5 +43,5 @@ class HealthRecords(Base):
 
 
 engine = create_engine("sqlite:///health_records.db")
-Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
+Base.metadata.create_all(engine)

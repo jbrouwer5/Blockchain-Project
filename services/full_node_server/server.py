@@ -8,7 +8,7 @@ import random
 import socket
 from concurrent import futures
 import threading  # if we implement the mining functions
-
+from db_models import HealthRecords, engine, Session
 from sqlalchemy.orm import sessionmaker
 
 
@@ -235,8 +235,12 @@ def perform_handshake_with_peer(health_node_service, peer_address):
 
 # Function to start the server
 def serve():
+
+    # Create DB session factory to make DB requests
+    session_factory = sessionmaker(bind=engine)
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    health_node_service = HealthNodeService()
+    health_node_service = HealthNodeService(session_factory)
     health_service_pb2_grpc.add_HealthServiceServicer_to_server(
         health_node_service, server
     )
