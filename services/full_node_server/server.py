@@ -8,8 +8,10 @@ import random
 import socket
 from concurrent import futures
 import threading  # if we implement the mining functions
+import db_models  # triggers the creation of the database
 from db_models import HealthRecords, engine, Session
 from sqlalchemy.orm import sessionmaker
+import sqlite3
 
 
 class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
