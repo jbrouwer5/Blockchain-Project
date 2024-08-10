@@ -16,12 +16,12 @@ for file in data_dir.glob("*.csv"):
     df = pd.read_csv(file)
     base_name = file.stem
 
-    df["patient_blockchain_address"] = df.apply(
+    df["patient_address"] = df.apply(
         lambda row: double_sha256(row["first_name"] + row["last_name"] + row["email"]),
         axis=1,
     )
 
-    df["hospital_address"] = df.apply(
+    df["VO_address"] = df.apply(
         lambda row: double_sha256(str(base_name)),
         axis=1,
     )
