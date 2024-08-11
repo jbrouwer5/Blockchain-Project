@@ -22,23 +22,19 @@ class Block:
         self.MagicNumber = "0xD984BEF9"  # default
         self.Blocksize = 0  # default
         self.Transactions_input = Transactions  # this is a list of the Transactions that are input at creation
-        self.Transactions = (
-            self.get_transactions()
-        )  # i want to store the transactions by their hashes
-        self.TransactionCounter = len(
-            self.Transactions
-        )  # set to be the number of transactions in the block
-        self.BlockHeader = Header(
-            self.Transactions
-        )  # this is the Header object that is initiatied when the Block is created
-        self.Blockhash = self.block_hash()  # the double sha hash of this block
+        self.Transactions = self.get_transactions() # i want to store the transactions by their hashes
+        self.TransactionCounter = len(self.Transactions)  # set to be the number of transactions in the block
+        self.BlockHeader = Header(self.Transactions)  # this is the Header object that is initiatied when the Block is created
+        #self.Blockhash = self.block_hash()  # the double sha hash of this block
+        self.Blockhash = None  # the block hash, set after mining
+        self.mine_block(difficulty=4)  # default difficulty for PoW
 
     def get_transactions(self):
         transaction_hashes = []
         for t in range(len(self.Transactions_input)):
             transaction_hashes.append(self.Transactions_input[t].TransactionHash)
         return transaction_hashes
-
+    
     """creating the double sha hash representing this block, incorporating data from the Block's Header"""
 
     def block_hash(self):
@@ -46,11 +42,26 @@ class Block:
             str(self.BlockHeader.Timestamp)
             + str(self.BlockHeader.hashMerkleRoot)
             + str(self.BlockHeader.Bits)
+            + str(self.BlockHeader.Nonce)
+            + str(self.BlockHeader.hashPrevBlock)
         )
-        string_to_hash += str(self.BlockHeader.Nonce)
+        return sha256(sha256(string_to_hash.encode('utf-8')).digest()).hexdigest()
+
+        """string_to_hash += str(self.BlockHeader.Nonce)
         string_to_hash += str(self.BlockHeader.hashPrevBlock)
         bytes_to_hash = bytes(string_to_hash, "utf-8")
-        return sha256(sha256(bytes_to_hash).hexdigest().encode("utf-8")).hexdigest()
+        return sha256(sha256(bytes_to_hash).hexdigest().encode("utf-8")).hexdigest()"""
+    
+    def mine_block(self, difficulty):
+        target = '0' * difficulty
+        self.BlockHeader.Nonce = 0
+        self.Blockhash = self.block_hash()
+
+        while self.Blockhash[:difficulty] != target:
+            self.BlockHeader.Nonce += 1
+            self.Blockhash = self.block_hash()
+
+        print(f"Block mined with hash: {self.Blockhash} after {self.BlockHeader.Nonce} attempts")
 
     def printBlock(self):
         print(f"Magic Number is f{self.MagicNumber}")
@@ -201,12 +212,9 @@ class Blockchain:
     """add a new block to the Blockchain"""
 
     def add_block(self, Block):
-        Block.BlockHeader.hashPrevBlock = self.blockchain[
-            -1
-        ].Blockhash  # add the hash of the last Block to this latest block
-        Block.Blockhash = (
-            Block.block_hash()
-        )  # recompute the hash of the block with updated PrevHash
+        Block.BlockHeader.hashPrevBlock = self.blockchain[-1].Blockhash  # add the hash of the last Block to this latest block
+        Block.mine_block(difficulty=4)
+        #Block.Blockhash = (Block.block_hash())  # recompute the hash of the block with updated PrevHash
         self.blockchain.append(Block)  # add it to the end of the chain
 
     """you can search for a block by either 'height' or 'hash'.  This function will then call
@@ -511,11 +519,11 @@ def load_transactions_from_csv(file_path):
             summary_available = row["gender"] in [
                 "Male",
                 "Female",
-            ]  # Example logic to determine summary availability
-            data_pointer = row["email"]  # Example logic to use email as data pointer
+            ] 
+            data_pointer = row["email"]
             approval_signature = (
                 "Signature_" + row["first_name"]
-            )  # Example logic for approval signature
+            )
             transaction = Transaction(
                 patient_address,
                 vo_address,
