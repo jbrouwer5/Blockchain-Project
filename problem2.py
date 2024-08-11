@@ -154,7 +154,7 @@ Transaction hash: Hash"""
 
 
 class Transaction:
-    def __init__(self, Patient_Ad, VO_Ad, H_ID, Summ_Av, Pointer, App_Sig):
+    def __init__(self, Patient_Ad, VO_Ad, H_ID, Summ_Av, Pointer):
         self.VersionNumber = 1 #default
         self.PatientAddress = Patient_Ad #input from database at creation
         self.VOAddress = VO_Ad #input from databse at creation
@@ -203,7 +203,7 @@ class Blockchain:
 
     def genesis_block(self):
         genesistransaction = Transaction(
-            "Genesis Patient", "Genesis VO", 1, True, "Genesis Pointer", "Genesis Sig"
+            "Genesis Patient", "Genesis VO", 1, True, "Genesis Pointer"
         )
         genesisblock = Block([genesistransaction])
         genesisblock.hashPrevBlock = "00000000000000000000"
@@ -511,26 +511,25 @@ def load_transactions_from_csv(file_path):
     with open(file_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            patient_address = row["first_name"] + "_" + row["last_name"]
-            vo_address = row["email"]
+            patient_address = row["patient_address"]
+            vo_address = row["VO_address"]
             hippa_id = int(
-                row["id"]
+                row["hippa_id"]
             )  # Assuming HIPAA ID is unique and can be mapped from 'id' column
             summary_available = row["gender"] in [
                 "Male",
                 "Female",
             ] 
-            data_pointer = row["email"]
-            approval_signature = (
-                "Signature_" + row["first_name"]
-            )
+            data_pointer = row["id"]
+            #approval_signature = (
+            #    "Signature_" + row["first_name"]
+            #)
             transaction = Transaction(
                 patient_address,
                 vo_address,
                 hippa_id,
                 summary_available,
-                data_pointer,
-                approval_signature,
+                data_pointer
             )
             transactions.append(transaction)
     return transactions
