@@ -1,7 +1,6 @@
 from hashlib import sha256
 from datetime import datetime, timedelta
 from binascii import unhexlify, hexlify
-
 import csv
 import os
 import hashlib
@@ -12,6 +11,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from wallet import Wallet, Patient, Requester, VerifiedAuthority
 
 
 """creating the class object to hold the Blocks"""
@@ -310,188 +310,6 @@ class Blockchain:
             print(
                 f"VO ID is: {hippa_transacts[i].VOAddress}, Patient Address is {hippa_transacts[i].PatientAddress}, Summary Availability is {hippa_transacts[i].SummaryAvail}"
             )
-
-
-class Wallet:
-    def __init__(self, private_key_hex=None):
-        if private_key_hex:
-            self.private_key = bytes.fromhex(private_key_hex)
-        else:
-            self.private_key = os.urandom(32)
-        self.steps = {}
-        self.public_key = self.private_key_to_public_key()
-
-    def sha256(self, data):
-        return hashlib.sha256(data).digest()
-
-    def ripemd160(self, data):
-        h = hashlib.new("ripemd160")
-        h.update(data)
-        return h.digest()
-
-    def base58_encode(self, data):
-        alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-        base_count = len(alphabet)
-        num = int.from_bytes(data, "big")
-        encoded = ""
-        while num > 0:
-            num, rem = divmod(num, base_count)
-            encoded = alphabet[rem] + encoded
-        n_pad = len(data) - len(data.lstrip(b"\x00"))
-        return "1" * n_pad + encoded
-
-    def private_key_to_compressed_public_key(self):
-        sk = ecdsa.SigningKey.from_string(self.private_key, curve=ecdsa.SECP256k1)
-        vk = sk.get_verifying_key()
-        x = vk.to_string()[:32]
-        y = vk.to_string()[32:]
-        if int.from_bytes(y, "big") % 2 == 0:
-            return b"\x02" + x
-        else:
-            return b"\x03" + x
-
-    def private_key_to_public_key(self):
-        sk = ecdsa.SigningKey.from_string(self.private_key, curve=ecdsa.SECP256k1)
-        vk = sk.get_verifying_key()
-        return vk.to_string()
-
-    def generate_address(self):
-
-        compressed_public_key = self.private_key_to_compressed_public_key()
-
-        sha256_pk = self.sha256(compressed_public_key)
-
-        ripemd160_pk = self.ripemd160(sha256_pk)
-
-        versioned_payload = b"\x00" + ripemd160_pk
-
-        sha256_vp = self.sha256(versioned_payload)
-
-        sha256_sha256_vp = self.sha256(sha256_vp)
-
-        checksum = sha256_sha256_vp[:4]
-
-        binary_address = versioned_payload + checksum
-
-        bitcoin_address = self.base58_encode(binary_address)
-
-    def print_steps(self):
-        for stage, value in self.steps.items():
-            print(f"{stage} is: {value}")
-
-    @staticmethod
-    def generate_shared_secret():
-        return os.urandom(32)
-
-    @staticmethod
-    def aes_encrypt(shared_secret, data):
-        iv = os.urandom(16)
-        cipher = Cipher(
-            algorithms.AES(shared_secret), modes.CFB(iv), backend=default_backend()
-        )
-        encryptor = cipher.encryptor()
-        encrypted_data = iv + encryptor.update(data.encode()) + encryptor.finalize()
-        return base64.b64encode(encrypted_data).decode("utf-8")
-
-    @staticmethod
-    def aes_decrypt(shared_secret, encrypted_data):
-        encrypted_data = base64.b64decode(encrypted_data)
-        iv = encrypted_data[:16]
-        cipher = Cipher(
-            algorithms.AES(shared_secret), modes.CFB(iv), backend=default_backend()
-        )
-        decryptor = cipher.decryptor()
-        decrypted_data = decryptor.update(encrypted_data[16:]) + decryptor.finalize()
-        return decrypted_data.decode("utf-8")
-
-    def sign_message(self, message):
-        sk = ecdsa.SigningKey.from_string(self.private_key, curve=ecdsa.SECP256k1)
-        return base64.b64encode(sk.sign(message.encode())).decode("utf-8")
-
-    def verify_message(self, public_key, message, signature):
-        vk = ecdsa.VerifyingKey.from_string(public_key, curve=ecdsa.SECP256k1)
-        try:
-            return vk.verify(base64.b64decode(signature), message.encode())
-        except ecdsa.BadSignatureError:
-            return False
-
-
-class Patient(Wallet):
-    def create_token(self, requester_public_key, verified_authority_public_key):
-        shared_secret = self.generate_shared_secret()
-
-        encrypted_secret_for_requester = self.encrypt_shared_secret(
-            requester_public_key, shared_secret
-        )
-        encrypted_secret_for_verified_authority = self.encrypt_shared_secret(
-            verified_authority_public_key, shared_secret
-        )
-
-        token = {
-            "encrypted_secret_for_requester": encrypted_secret_for_requester,
-            "encrypted_secret_for_verified_authority": encrypted_secret_for_verified_authority,
-            "expiration_time": (datetime.utcnow() + timedelta(days=1)).isoformat()
-            + "Z",
-        }
-
-        token_json = json.dumps(token, indent=2)
-        signature = self.sign_message(token_json)
-        return token_json, signature
-
-    @staticmethod
-    def encrypt_shared_secret(public_key, shared_secret):
-        encrypted_secret = public_key.encrypt(
-            shared_secret,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None,
-            ),
-        )
-        return base64.b64encode(encrypted_secret).decode("utf-8")
-
-
-class Requester(Wallet):
-    def decrypt_token(self, token):
-        decrypted_secret = self.decrypt_shared_secret(
-            self.private_key, token["encrypted_secret_for_requester"]
-        )
-        return decrypted_secret
-
-    @staticmethod
-    def decrypt_shared_secret(private_key, encrypted_secret):
-        decrypted_secret = private_key.decrypt(
-            base64.b64decode(encrypted_secret),
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None,
-            ),
-        )
-        return decrypted_secret
-
-
-class VerifiedAuthority(Wallet):
-    def decrypt_token(self, token):
-        decrypted_secret = self.decrypt_shared_secret(
-            self.private_key, token["encrypted_secret_for_verified_authority"]
-        )
-        return decrypted_secret
-
-    @staticmethod
-    def decrypt_shared_secret(private_key, encrypted_secret):
-        decrypted_secret = private_key.decrypt(
-            base64.b64decode(encrypted_secret),
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None,
-            ),
-        )
-        return decrypted_secret
-
-    def verify_patient_authority(self, patient_public_key, token_json, signature):
-        return self.verify_message(patient_public_key, token_json, signature)
 
 
 def load_public_key(pem_file):
