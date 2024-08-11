@@ -179,6 +179,16 @@ class Transaction:
         bytes_to_hash = bytes(string_to_hash, "utf-8")
         return sha256(sha256(bytes_to_hash).hexdigest().encode("utf-8")).hexdigest()
 
+    def req_approval(self, requestor):
+        self.RequestorAddress = requestor.address
+        n = len(patient_db.pdb)
+        for i in range(n):
+            if patient_db.pdb[i][0] == self.PatientAddress:
+                index = i
+        patient = patient_db.pdb[index][1]
+        self.Approval = patient.app_sig(self.Data, requestor.rsa_public_key)
+        self.TransactionHash = self.transaction_hash()
+
     def printTransaction(self):
         print(f"Version Number is {self.VersionNumber}")
         print(f"Patient Address is {self.PatientAddress}")
@@ -311,6 +321,17 @@ class Blockchain:
                 f"VO ID is: {hippa_transacts[i].VOAddress}, Patient Address is {hippa_transacts[i].PatientAddress}, Summary Availability is {hippa_transacts[i].SummaryAvail}"
             )
 
+"""creating a Patient DB to hold all Patient Wallet objects, referenced by their patient_address.
+This would be created locally for each patient, here i am creating a master database as the GUI interfaces
+for multiple patients to independently access the blockchain is not in this phase"""
+class PatientDB:
+    def __init__(self):
+        self.pdb = []  # my db will be a list of lists, for each sub_list: list[0] = patient_address, list[1] = Patient Wallet object
+    
+    def add_patient(self, first_name, last_name, email, Patient_Ad):
+        patient = Patient(first_name, last_name, email)
+        self.pdb.append([Patient_Ad, patient])  # add the list to the end of the chain
+
 
 def load_public_key(pem_file):
     with open(pem_file, "rb") as key_file:
@@ -338,10 +359,27 @@ def load_transactions_from_csv(file_path):
                 "Male",
                 "Female",
             ] 
-            data_pointer = row["id"]
-            #approval_signature = (
-            #    "Signature_" + row["first_name"]
-            #)
+            raw_pointer = row["id"]
+            #now i will check if we already have a Patient Wallet object for this patient, and if not create one
+            n = len(patient_db.pdb)
+            if n == 0:
+                patient_db.add_patient(row["first_name"], row["last_name"], row["email"], patient_address)
+                index = 0
+            else:
+                flag = 0
+                for i in range(n):
+                    if patient_db.pdb[i][0] == patient_address:
+                        index = i
+                        flag = 1
+                if flag == 0:
+                    patient_db.add_patient(row["first_name"], row["last_name"], row["email"], patient_address)
+                    index = n
+            #call the correct patient wallet object for this patient
+            patient = patient_db.pdb[index][1]
+            #encrypt the pointer with their public key
+            data_pointer = patient.pointer(int(raw_pointer), vo.rsa_public_key)
+
+            #build the transaction
             transaction = Transaction(
                 patient_address,
                 vo_address,
@@ -354,6 +392,13 @@ def load_transactions_from_csv(file_path):
 
 
 if __name__ == "__main__":
+    #first create an instance of the patient database to hole PatientWallet objects
+    patient_db = PatientDB()
+    #in this version we are just creating 1 VO object
+    vo = VerifiedAuthority()
+    #and also only 1 requestor for approval
+    requester = Requester()
+    #build transactions from the csv file
     transactions = load_transactions_from_csv("MOCK_DATA.csv")
 
     block_1 = Block(transactions[:5])
@@ -363,16 +408,31 @@ if __name__ == "__main__":
     b.add_block(block_1)
     b.add_block(block_2)
 
-    print("\nHere is the block at height 1 in the Blockchain\n")
+    #print("\nHere is the block at height 1 in the Blockchain\n")
 
-    b.search_block("height", 1)
+    #b.search_block("height", 1)
 
-    print("\nHere is a transaction searched by its hash\n")
+    #print("\nHere is a transaction searched by its hash\n")
 
-    b.search_transaction(transactions[3].TransactionHash)
+    #b.search_transaction(transactions[3].TransactionHash)
 
     print("\nPrinting all transactions associated with a given patient address")
     b.print_patient_transactions(transactions[0].PatientAddress)
 
-    print("\nPrinting summary of transactions associated with a given HIPAA ID")
-    b.print_hippa_summary(transactions[0].HippaID)
+    #print("\nPrinting summary of transactions associated with a given HIPAA ID")
+    #b.print_hippa_summary(transactions[0].HippaID)
+
+    print("\nTesting the app_sig function")
+    print("\nFirst search for the transactions with Hippa ID 103 (the first one is the one that has just been printed to the terminal)")
+    hippa103 = b.search_hippa_transactions(103)
+    print("\ntake that tx and lets simulate a patient giving approval to the requestor")
+    #first i create a new Transaction as i dont want to amend the original, but it replicates all the original fields
+    approval_tx = Transaction(hippa103[0].PatientAddress, hippa103[0].VOAddress, hippa103[0].HippaID, hippa103[0].SummaryAvail, hippa103[0].Data)
+    #then we add the 2 new fields and rehash it to complete the approved transaction
+    approval_tx.req_approval(requester)
+    print("\nprint the new updated transaction with new RequestorAddress, Approval and Hash\n")
+    approval_tx.printTransaction()
+    print("\nnow lets confirm it returns the correct database id from the MOCK_DATA.csv\n")
+    vo_submission = requester.requestor_generate(approval_tx.Approval)
+    retrieved_record_id = vo.vo_verify(vo_submission)
+    print("Retrieved Record ID:", retrieved_record_id)
