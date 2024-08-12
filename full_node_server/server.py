@@ -95,9 +95,11 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
         ]:
             self.mempool.add_transaction(from_proto_transaction(transaction))
             self.gossip_transaction(transaction)
+        else:
+           print(f"Transaction {transaction.TransactionHash} already in mempool.", flush=True)
 
         return health_service_pb2.Empty()
-
+    
     def NewBlockBroadcast(self, request: health_service_pb2.NewBlockRequest, context):
         block = request.newBlock 
         
