@@ -59,6 +59,11 @@ class HealthServiceStub(object):
                 request_serializer=health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
                 response_deserializer=health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
                 _registered_method=True)
+        self.getHealthRecords = channel.unary_unary(
+                '/healthservice.HealthService/getHealthRecords',
+                request_serializer=health__service__pb2.GetHealthRecordsRequest.SerializeToString,
+                response_deserializer=health__service__pb2.HealthRecordListResponse.FromString,
+                _registered_method=True)
         self.Handshake = channel.unary_unary(
                 '/healthservice.HealthService/Handshake',
                 request_serializer=health__service__pb2.HandshakeRequest.SerializeToString,
@@ -98,6 +103,12 @@ class HealthServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def sendUserAuthTokenToVO(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def getHealthRecords(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -143,6 +154,11 @@ def add_HealthServiceServicer_to_server(servicer, server):
                     servicer.sendUserAuthTokenToVO,
                     request_deserializer=health__service__pb2.SendUserAuthTokenToVO.FromString,
                     response_serializer=health__service__pb2.ConfirmUserAuthTokenVOToUser.SerializeToString,
+            ),
+            'getHealthRecords': grpc.unary_unary_rpc_method_handler(
+                    servicer.getHealthRecords,
+                    request_deserializer=health__service__pb2.GetHealthRecordsRequest.FromString,
+                    response_serializer=health__service__pb2.HealthRecordListResponse.SerializeToString,
             ),
             'Handshake': grpc.unary_unary_rpc_method_handler(
                     servicer.Handshake,
@@ -268,6 +284,33 @@ class HealthService(object):
             '/healthservice.HealthService/sendUserAuthTokenToVO',
             health__service__pb2.SendUserAuthTokenToVO.SerializeToString,
             health__service__pb2.ConfirmUserAuthTokenVOToUser.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def getHealthRecords(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/healthservice.HealthService/getHealthRecords',
+            health__service__pb2.GetHealthRecordsRequest.SerializeToString,
+            health__service__pb2.HealthRecordListResponse.FromString,
             options,
             channel_credentials,
             insecure,

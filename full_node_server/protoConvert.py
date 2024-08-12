@@ -29,27 +29,28 @@ def to_proto_transaction(transaction):
 
     return newTransaction
 
-def from_proto_transaction(proto_transaction):
+def from_proto_transaction(proto_transaction, patient_db):
     # Assuming that the Transaction object has a similar structure
-    transaction = Transaction()
     
-    transaction.VersionNumber = proto_transaction.VersionNumber
-    transaction.PatientAddress = proto_transaction.Patient_Ad
-    transaction.VOAddress = proto_transaction.VOAddress
-    transaction.HippaID = proto_transaction.HippaID
-    transaction.SummaryAvail = proto_transaction.SummaryAvail
-    transaction.Data = proto_transaction.Data
-    transaction.RequestorAddress = proto_transaction.RequestorAddress
-    transaction.Approval = proto_transaction.Approval
-    transaction.TransactionHash = proto_transaction.TransactionHash
-
+    
+    VersionNumber = proto_transaction.VersionNumber
+    PatientAddress = proto_transaction.Patient_Ad
+    VOAddress = proto_transaction.VOAddress
+    HippaID = proto_transaction.HippaID
+    SummaryAvail = proto_transaction.SummaryAvail
+    Data = proto_transaction.Data
+    RequestorAddress = proto_transaction.RequestorAddress
+    Approval = proto_transaction.Approval
+    TransactionHash = proto_transaction.TransactionHash
+    
+    transaction = Transaction(PatientAddress, VOAddress, HippaID, SummaryAvail, Data, PatientDB())
     # Assuming that the patient_db is a list of patient instances in the Transaction class
-    transaction.patient_db = PatientDB()
     for proto_patient in proto_transaction.patient_db.patients:
-        patient = Patient()
-        patient.first_name = proto_patient.first_name
-        patient.last_name = proto_patient.last_name
-        patient.email = proto_patient.email
+        
+        first_name = proto_patient.first_name
+        last_name = proto_patient.last_name
+        email = proto_patient.email
+        patient = Patient(first_name, last_name, email)
         transaction.patient_db.pdb.append(patient)
 
     return transaction

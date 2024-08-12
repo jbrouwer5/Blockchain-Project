@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14health_service.proto\x12\rhealthservice\"M\n\'RequestUserRecordAccessResearcherToUser\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\"k\n(ResponseUserRecordAccessUserToResearcher\x12\"\n\x1apatient_blcokchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"{\n%RequestUserRecordAccessResearcherToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\x12\x11\n\tjwt_token\x18\x03 \x01(\t\"i\n&ResponseUserRecordAccessVOToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"\x1d\n\x1b\x42roadcastTransactionToChain\"V\n\x1dSendUserAuthTokenToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"N\n\x15SendUserAuthTokenToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"/\n\x1c\x43onfirmUserAuthTokenVOToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"7\n$ConfirmUserAuthTokenResearcherToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"U\n\x10HandshakeRequest\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x64\x64rMe\x18\x03 \x01(\t\x12\x12\n\nbestHeight\x18\x04 \x01(\x05\"\'\n\x11HandshakeResponse\x12\x12\n\nknownPeers\x18\x01 \x03(\t\"1\n\x15NewTransactionRequest\x12\x18\n\x10transaction_data\x18\x01 \x01(\t\"%\n\x0fNewBlockRequest\x12\x12\n\nblock_data\x18\x01 \x01(\t\"\x07\n\x05\x45mpty2\x9e\x06\n\rHealthService\x12\x96\x01\n#getUserRecordAccessResearcherToUser\x12\x36.healthservice.RequestUserRecordAccessResearcherToUser\x1a\x37.healthservice.ResponseUserRecordAccessUserToResearcher\x12\x90\x01\n!getUserRecordAccessResearcherToVO\x12\x34.healthservice.RequestUserRecordAccessResearcherToVO\x1a\x35.healthservice.ResponseUserRecordAccessVOToResearcher\x12\x82\x01\n\x1dsendUserAuthTokenToResearcher\x12,.healthservice.SendUserAuthTokenToResearcher\x1a\x33.healthservice.ConfirmUserAuthTokenResearcherToUser\x12j\n\x15sendUserAuthTokenToVO\x12$.healthservice.SendUserAuthTokenToVO\x1a+.healthservice.ConfirmUserAuthTokenVOToUser\x12N\n\tHandshake\x12\x1f.healthservice.HandshakeRequest\x1a .healthservice.HandshakeResponse\x12U\n\x17NewTransactionBroadcast\x12$.healthservice.NewTransactionRequest\x1a\x14.healthservice.Empty\x12I\n\x11NewBlockBroadcast\x12\x1e.healthservice.NewBlockRequest\x1a\x14.healthservice.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14health_service.proto\x12\rhealthservice\"M\n\'RequestUserRecordAccessResearcherToUser\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\"k\n(ResponseUserRecordAccessUserToResearcher\x12\"\n\x1apatient_blcokchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"{\n%RequestUserRecordAccessResearcherToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\x12\x11\n\tjwt_token\x18\x03 \x01(\t\"i\n&ResponseUserRecordAccessVOToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x1b\n\x13signed_data_request\x18\x02 \x01(\t\"V\n\x1dSendUserAuthTokenToResearcher\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"N\n\x15SendUserAuthTokenToVO\x12\"\n\x1apatient_blockchain_address\x18\x01 \x01(\t\x12\x11\n\tjwt_token\x18\x02 \x01(\t\"/\n\x1c\x43onfirmUserAuthTokenVOToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"7\n$ConfirmUserAuthTokenResearcherToUser\x12\x0f\n\x07success\x18\x01 \x01(\x08\"U\n\x10HandshakeRequest\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x64\x64rMe\x18\x03 \x01(\t\x12\x12\n\nbestHeight\x18\x04 \x01(\x05\"\'\n\x11HandshakeResponse\x12\x12\n\nknownPeers\x18\x01 \x03(\t\"K\n\x15NewTransactionRequest\x12\x32\n\x0enewTransaction\x18\x01 \x01(\x0b\x32\x1a.healthservice.Transaction\"\xf3\x01\n\x0bTransaction\x12\x15\n\rVersionNumber\x18\x01 \x01(\x05\x12\x12\n\nPatient_Ad\x18\x02 \x01(\t\x12\x11\n\tVOAddress\x18\x03 \x01(\t\x12\x0f\n\x07HippaID\x18\x04 \x01(\t\x12\x14\n\x0cSummaryAvail\x18\x05 \x01(\x08\x12\x0c\n\x04\x44\x61ta\x18\x06 \x01(\t\x12\x18\n\x10RequestorAddress\x18\x07 \x01(\t\x12\x10\n\x08\x41pproval\x18\x08 \x01(\t\x12\x17\n\x0fTransactionHash\x18\t \x01(\t\x12,\n\npatient_db\x18\n \x01(\x0b\x32\x18.healthservice.patientDB\"5\n\tpatientDB\x12(\n\x08patients\x18\x01 \x03(\x0b\x32\x16.healthservice.patient\"?\n\x07patient\x12\x12\n\nfirst_name\x18\x01 \x01(\t\x12\x11\n\tlast_name\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"9\n\x0fNewBlockRequest\x12&\n\x08newBlock\x18\x01 \x01(\x0b\x32\x14.healthservice.Block\"\xf4\x01\n\x05\x42lock\x12\x13\n\x0bMagicNumber\x18\x01 \x01(\x03\x12\x11\n\tBlocksize\x18\x02 \x01(\x05\x12\x36\n\x12Transactions_input\x18\x03 \x03(\x0b\x32\x1a.healthservice.Transaction\x12\x30\n\x0cTransactions\x18\x04 \x03(\x0b\x32\x1a.healthservice.Transaction\x12\x1a\n\x12TransactionCounter\x18\x05 \x01(\x05\x12*\n\x0b\x42lockHeader\x18\x06 \x01(\x0b\x32\x15.healthservice.Header\x12\x11\n\tBlockhash\x18\x07 \x01(\t\"\xac\x01\n\x06Header\x12\x36\n\x12\x42lock_Transactions\x18\x01 \x03(\x0b\x32\x1a.healthservice.Transaction\x12\x0f\n\x07Version\x18\x02 \x01(\x05\x12\x15\n\rhashPrevBlock\x18\x03 \x01(\t\x12\x12\n\nMerkleTree\x18\x04 \x03(\t\x12\x11\n\tTimestamp\x18\x05 \x01(\x03\x12\x0c\n\x04\x42its\x18\x06 \x01(\x05\x12\r\n\x05Nonce\x18\x07 \x01(\x05\"\xd3\x01\n\x14HealthRecordResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x12\n\nfirst_name\x18\x02 \x01(\t\x12\x11\n\tlast_name\x18\x03 \x01(\t\x12\r\n\x05\x65mail\x18\x04 \x01(\t\x12\x0e\n\x06gender\x18\x05 \x01(\t\x12\x0e\n\x06height\x18\x06 \x01(\x02\x12\x0e\n\x06weight\x18\x07 \x01(\x02\x12\x0b\n\x03\x61ge\x18\x08 \x01(\x05\x12\x0f\n\x07HippaID\x18\t \x01(\x05\x12\x17\n\x0fpatient_address\x18\n \x01(\t\x12\x12\n\nvo_address\x18\x0b \x01(\t\"W\n\x18HealthRecordListResponse\x12;\n\x0ehealth_records\x18\x01 \x03(\x0b\x32#.healthservice.HealthRecordResponse\"@\n\x17GetHealthRecordsRequest\x12%\n\x07request\x18\x01 \x01(\x0b\x32\x14.healthservice.Empty\"\x07\n\x05\x45mpty2\x83\x07\n\rHealthService\x12\x96\x01\n#getUserRecordAccessResearcherToUser\x12\x36.healthservice.RequestUserRecordAccessResearcherToUser\x1a\x37.healthservice.ResponseUserRecordAccessUserToResearcher\x12\x90\x01\n!getUserRecordAccessResearcherToVO\x12\x34.healthservice.RequestUserRecordAccessResearcherToVO\x1a\x35.healthservice.ResponseUserRecordAccessVOToResearcher\x12\x82\x01\n\x1dsendUserAuthTokenToResearcher\x12,.healthservice.SendUserAuthTokenToResearcher\x1a\x33.healthservice.ConfirmUserAuthTokenResearcherToUser\x12j\n\x15sendUserAuthTokenToVO\x12$.healthservice.SendUserAuthTokenToVO\x1a+.healthservice.ConfirmUserAuthTokenVOToUser\x12\x63\n\x10getHealthRecords\x12&.healthservice.GetHealthRecordsRequest\x1a\'.healthservice.HealthRecordListResponse\x12N\n\tHandshake\x12\x1f.healthservice.HandshakeRequest\x1a .healthservice.HandshakeResponse\x12U\n\x17NewTransactionBroadcast\x12$.healthservice.NewTransactionRequest\x1a\x14.healthservice.Empty\x12I\n\x11NewBlockBroadcast\x12\x1e.healthservice.NewBlockRequest\x1a\x14.healthservice.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,26 +29,40 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REQUESTUSERRECORDACCESSRESEARCHERTOVO']._serialized_end=350
   _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_start=352
   _globals['_RESPONSEUSERRECORDACCESSVOTORESEARCHER']._serialized_end=457
-  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_start=459
-  _globals['_BROADCASTTRANSACTIONTOCHAIN']._serialized_end=488
-  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_start=490
-  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_end=576
-  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_start=578
-  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_end=656
-  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_start=658
-  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_end=705
-  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_start=707
-  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_end=762
-  _globals['_HANDSHAKEREQUEST']._serialized_start=764
-  _globals['_HANDSHAKEREQUEST']._serialized_end=849
-  _globals['_HANDSHAKERESPONSE']._serialized_start=851
-  _globals['_HANDSHAKERESPONSE']._serialized_end=890
-  _globals['_NEWTRANSACTIONREQUEST']._serialized_start=892
-  _globals['_NEWTRANSACTIONREQUEST']._serialized_end=941
-  _globals['_NEWBLOCKREQUEST']._serialized_start=943
-  _globals['_NEWBLOCKREQUEST']._serialized_end=980
-  _globals['_EMPTY']._serialized_start=982
-  _globals['_EMPTY']._serialized_end=989
-  _globals['_HEALTHSERVICE']._serialized_start=992
-  _globals['_HEALTHSERVICE']._serialized_end=1790
+  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_start=459
+  _globals['_SENDUSERAUTHTOKENTORESEARCHER']._serialized_end=545
+  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_start=547
+  _globals['_SENDUSERAUTHTOKENTOVO']._serialized_end=625
+  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_start=627
+  _globals['_CONFIRMUSERAUTHTOKENVOTOUSER']._serialized_end=674
+  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_start=676
+  _globals['_CONFIRMUSERAUTHTOKENRESEARCHERTOUSER']._serialized_end=731
+  _globals['_HANDSHAKEREQUEST']._serialized_start=733
+  _globals['_HANDSHAKEREQUEST']._serialized_end=818
+  _globals['_HANDSHAKERESPONSE']._serialized_start=820
+  _globals['_HANDSHAKERESPONSE']._serialized_end=859
+  _globals['_NEWTRANSACTIONREQUEST']._serialized_start=861
+  _globals['_NEWTRANSACTIONREQUEST']._serialized_end=936
+  _globals['_TRANSACTION']._serialized_start=939
+  _globals['_TRANSACTION']._serialized_end=1182
+  _globals['_PATIENTDB']._serialized_start=1184
+  _globals['_PATIENTDB']._serialized_end=1237
+  _globals['_PATIENT']._serialized_start=1239
+  _globals['_PATIENT']._serialized_end=1302
+  _globals['_NEWBLOCKREQUEST']._serialized_start=1304
+  _globals['_NEWBLOCKREQUEST']._serialized_end=1361
+  _globals['_BLOCK']._serialized_start=1364
+  _globals['_BLOCK']._serialized_end=1608
+  _globals['_HEADER']._serialized_start=1611
+  _globals['_HEADER']._serialized_end=1783
+  _globals['_HEALTHRECORDRESPONSE']._serialized_start=1786
+  _globals['_HEALTHRECORDRESPONSE']._serialized_end=1997
+  _globals['_HEALTHRECORDLISTRESPONSE']._serialized_start=1999
+  _globals['_HEALTHRECORDLISTRESPONSE']._serialized_end=2086
+  _globals['_GETHEALTHRECORDSREQUEST']._serialized_start=2088
+  _globals['_GETHEALTHRECORDSREQUEST']._serialized_end=2152
+  _globals['_EMPTY']._serialized_start=2154
+  _globals['_EMPTY']._serialized_end=2161
+  _globals['_HEALTHSERVICE']._serialized_start=2164
+  _globals['_HEALTHSERVICE']._serialized_end=3063
 # @@protoc_insertion_point(module_scope)

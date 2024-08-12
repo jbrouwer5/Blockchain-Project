@@ -93,8 +93,8 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
         if transaction.TransactionHash not in [
             tx.TransactionHash for tx in self.mempool.get_transactions()
         ]:
-            self.mempool.add_transaction(from_proto_transaction(transaction))
-            self.gossip_transaction(transaction)
+            self.mempool.add_transaction(from_proto_transaction(transaction, context))
+            self.gossip_transaction(request)
         else:
            print(f"Transaction {transaction.TransactionHash} already in mempool.", flush=True)
 
@@ -350,24 +350,28 @@ def main():
     # print("\nPrinting all transactions associated with a given patient address")
     # b.print_patient_transactions(transactions[0].PatientAddress)
 
-    # #print("\nPrinting summary of transactions associated with a given HIPAA ID")
-    # #b.print_hippa_summary(transactions[0].HippaID)
+    print("\nPrinting summary of transactions associated with a given HIPAA ID")
+    health_node_service.blockchain.print_hippa_summary(transactions[0].HippaID)
 
-    # print("\nTesting the app_sig function")
-    # print("\nFirst search for the transactions with Hippa ID 103 (the first one is the one that has just been printed to the terminal)")
-    # hippa103 = b.search_hippa_transactions(103)
-    # print("\ntake that tx and lets simulate a patient giving approval to the requestor")
-    # #first i create a new Transaction as i dont want to amend the original, but it replicates all the original fields
-    # approval_tx = Transaction(hippa103[0].PatientAddress, hippa103[0].VOAddress, hippa103[0].HippaID, hippa103[0].SummaryAvail, hippa103[0].Data)
-    # health_node_service.NewTransactionBroadcast(approval_tx)
-    # #then we add the 2 new fields and rehash it to complete the approved transaction
-    # approval_tx.req_approval(requester)
-    # print("\nprint the new updated transaction with new RequestorAddress, Approval and Hash\n")
-    # approval_tx.printTransaction()
-    # print("\nnow lets confirm it returns the correct database id from the MOCK_DATA.csv\n")
-    # vo_submission = requester.requestor_generate(approval_tx.Approval)
-    # retrieved_record_id = vo.vo_verify(vo_submission)
-    # print("Retrieved Record ID:", retrieved_record_id)
+    print("\nTesting the app_sig function")
+    print("\nFirst search for the transactions with Hippa ID 103 (the first one is the one that has just been printed to the terminal)")
+    hippa103 = health_node_service.blockchain.search_hippa_transactions(103)
+    
+    
+    print("\ntake that tx and lets simulate a patient giving approval to the requestor")
+    #first i create a new Transaction as i dont want to amend the original, but it replicates all the original fields
+    approval_tx = Transaction(hippa103[0].PatientAddress, hippa103[0].VOAddress, hippa103[0].HippaID, hippa103[0].SummaryAvail, hippa103[0].Data, health_node_service.patient_db)
+    #then we add the 2 new fields and rehash it to complete the approved transaction
+    approval_tx.req_approval(requester)
+    # health_node_service.gossip_transaction(health_service_pb2.NewTransactionRequest(
+    #     newTransaction=to_proto_transaction(approval_tx)
+    # ))
+    print("\nprint the new updated transaction with new RequestorAddress, Approval and Hash\n")
+    approval_tx.printTransaction()
+    print("\nnow lets confirm it returns the correct database id from the MOCK_DATA.csv\n")
+    vo_submission = requester.requestor_generate(approval_tx.Approval)
+    retrieved_record_id = vo.vo_verify(vo_submission)
+    print("Retrieved Record ID:", retrieved_record_id)
     
     try:
         while True:
