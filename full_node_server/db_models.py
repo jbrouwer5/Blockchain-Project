@@ -26,7 +26,7 @@ Base = declarative_base()
 
 # VO_address (double_sha256 hash).  This is the double sha256 of the VO name
 
-
+# Database model for HealthRecords using sqlalchemy as an orm
 class HealthRecord(Base):
     __tablename__ = "health_records"
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -19,16 +19,19 @@ from problem2 import Transaction
 from problem2 import Block
 from problem2 import Requester
 from problem2 import load_transactions_from_csv
+from protoConvert import to_proto_transaction, from_proto_transaction, from_proto_block, to_proto_block
 
 
 class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
     def __init__(self, session_factory):
         self.known_peers = []
         self.mempool = ""  # TODO add mempool class
-        self.blockchain = ""  # TODO add blockchain class
+        self.patient_db = PatientDB() #an instance of the patient database to hole PatientWallet objects
+        self.blockchain = Blockchain(self.patient_db) # TODO add blockchain class
         self.local_address = ""  #  Set after server starts
         # TODO add miner class?
         self.Session = session_factory
+        self.completed_handshake = set()
 
     def Handshake(self, request, context):
         # This function is called by the peer when it wants to establish a connection with the Full Node
@@ -55,47 +58,39 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
         )
         return health_service_pb2.HandshakeResponse(knownPeers=self.known_peers)
 
-    def NewTransactionBroadcast(self, request, context):
-        transaction_hash = request.transaction_data
-        print(f"Received new transaction: {transaction_hash}", flush=True)
+    # GRPC callable function that allows other nodes to share their new transactions to this node
+    def NewTransactionBroadcast(self, request: health_service_pb2.NewTransactionRequest, context):
+        transaction = request.newTransaction
+        print(f"Received new transaction: {transaction.TransactionHash}", flush=True)
 
-        # Reconstruct the transaction from the hash (you may need to pass additional data)
-        transaction = Transaction(
-            list_of_inputs=["Reconstructed Input"],
-            list_of_outputs=[Output(1000, "Reconstructed Output")],
-        )
-        if transaction.transaction_hash not in [
-            tx.transaction_hash for tx in self.mempool.get_transactions()
+        if transaction.TransactionHash not in [
+            tx.TransactionHash for tx in self.mempool.get_transactions()
         ]:
-            self.mempool.add_transaction(transaction)
+            self.mempool.add_transaction(from_proto_transaction(transaction))
             self.gossip_transaction(transaction)
 
+        return health_service_pb2.Empty()
+
+    def NewBlockBroadcast(self, request: health_service_pb2.NewBlockRequest, context):
+        block = request.newBlock 
+        
+        peer_address = context.peer()
+        peer_ip = peer_address.split(":")[1]
+        print(f"Received new block from {peer_ip}: {block.Blockhash}", flush=True)
+
+        if not block:
+            self.blockchain.add_block(from_proto_block(block))
+            self.gossip_block(block)
+            
         # Random sleep to reduce chance of simultaneous mining
         time.sleep(random.randint(0, 3))
 
         return health_service_pb2.Empty()
 
-    def NewBlockBroadcast(self, request, context):
-        block_hash = request.block_data
-        peer_address = context.peer()
-        peer_ip = peer_address.split(":")[1]
-        print(f"Received new block from {peer_ip}: {block_hash}", flush=True)
-
-        # Reconstruct the block from the hash (you may need to pass additional data)
-        block = self.blockchain.get_block_by_hash(block_hash)
-        if not block:
-            # Assuming block data needs to be recreated or received fully (details needed)
-            block = Block(
-                previous_hash=self.blockchain.chain[-1].header.hash, transactions=[]
-            )
-            self.blockchain.add_block(block.transactions)
-            self.gossip_block(block)
-
-        return health_service_pb2.Empty()
-
-    def gossip_transaction(self, transaction):
+    def gossip_transaction(self, request: health_service_pb2.NewTransactionRequest):
+        transaction = request.newTransaction
         print(
-            f"Gossiping transaction {transaction.transaction_hash} to peers: {self.known_peers}",
+            f"Gossiping transaction {transaction.TransactionHash} to peers: {self.known_peers}",
             flush=True,
         )
         for peer in self.known_peers:
@@ -103,17 +98,14 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
             with grpc.insecure_channel(f"{ip}:{port}") as channel:
                 stub = health_service_pb2_grpc.HealthServiceStub(channel)
                 try:
-                    stub.NewTransactionBroadcast(
-                        health_service_pb2.NewTransactionRequest(
-                            transaction_data=transaction.transaction_hash
-                        )
-                    )
+                    stub.NewTransactionBroadcast(request)
                 except grpc.RpcError as e:
                     print(f"Failed to broadcast transaction to {peer}: {e}", flush=True)
 
-    def gossip_block(self, block):
+    def gossip_block(self, request: health_service_pb2.NewBlockRequest):
+        block = request.newBlock
         print(
-            f"Gossiping block {block.header.hash} to peers: {self.known_peers}",
+            f"Gossiping block {block.Blockhash} to peers: {self.known_peers}",
             flush=True,
         )
         for peer in self.known_peers:
@@ -122,7 +114,7 @@ class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
                 stub = health_service_pb2_grpc.HealthServiceStub(channel)
                 try:
                     stub.NewBlockBroadcast(
-                        health_service_pb2.NewBlockRequest(block_data=block.header.hash)
+                        health_service_pb2.NewBlockRequest(newBlock=block)
                     )
                 except grpc.RpcError as e:
                     print(f"Failed to broadcast block to {peer}: {e}", flush=True)
@@ -265,51 +257,65 @@ def serve():
 
 
 def main():
+    # Starting the server and getting the ip and assigned port 
     server, health_node_service, port = (
         serve()
-    )  # Start the server and get the dynamically assigned port
+    )  
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
-    completed_handshake = set()
+    
     print(
         f"Full Node started with IP address: {local_ip} and listening on port: {port}",
         flush=True,
     )
 
+    # Registering with the DNS by calling the dns-seed's register function
     last_peer = register_with_dns_seed(port)
     print(
         f"Registered with DNS_SEED. Last registered node IP from DNS_SEED: {last_peer}",
         flush=True,
     )
 
-    if last_peer and last_peer != health_node_service.local_address and last_peer not in completed_handshake:
+    # Checking if the received ip is new 
+    if last_peer and last_peer != health_node_service.local_address and last_peer not in health_node_service.completed_handshake:
         perform_handshake_with_peer(health_node_service, last_peer)
-        completed_handshake.add(last_peer)
+        health_node_service.completed_handshake.add(last_peer)
 
-    # Handshake with all known peers
+    # Handshake with all known peers that we haven't shaken hands with
     for peer in health_node_service.known_peers:
-        if peer not in completed_handshake:
+        if peer not in health_node_service.completed_handshake:
             perform_handshake_with_peer(health_node_service, peer)
-            completed_handshake.add(peer)
+            health_node_service.completed_handshake.add(peer)
 
     
-    #first create an instance of the patient database to hole PatientWallet objects
-    patient_db = PatientDB()
     #in this version we are just creating 1 VO object
     vo = VerifiedAuthority()
     #and also only 1 requestor for approval
     requester = Requester()
+    
     #build transactions from the csv file
-    transactions = load_transactions_from_csv("MOCK_DATA.csv", patient_db, vo)
+    transactions = load_transactions_from_csv("MOCK_DATA.csv", health_node_service.patient_db, vo)
 
+    # test gossip a transaction 
+    health_node_service.gossip_transaction(health_service_pb2.NewTransactionRequest(
+                            newTransaction=to_proto_transaction(transactions[0])
+                    ))
+    
+    # create test block
     block_1 = Block(transactions[:5])
     block_2 = Block(transactions[5:10])
-
-    b = Blockchain(patient_db)
-    b.add_block(block_1)
-    # health_node_service.gossip_block(block_1)
-    b.add_block(block_2)
-    # health_node_service.gossip_block(block_2)
+    
+    health_node_service.blockchain.add_block(block_1)
+    # test gossip a block
+    health_node_service.gossip_block(health_service_pb2.NewBlockRequest(
+                            newBlock=to_proto_block(block_1)
+                    ))
+    
+    health_node_service.blockchain.add_block(block_2)
+    # test gossip a block
+    health_node_service.gossip_block(health_service_pb2.NewBlockRequest(
+                            newBlock=to_proto_block(block_1)
+                    ))
 
 
     # print("\nPrinting all transactions associated with a given patient address")

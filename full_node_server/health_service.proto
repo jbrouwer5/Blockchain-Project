@@ -53,9 +53,54 @@ message HandshakeRequest {
 
 message HandshakeResponse { repeated string knownPeers = 1; }
 
-message NewTransactionRequest { string transaction_data = 1; }
+message NewTransactionRequest { 
+  Transaction newTransaction = 1; 
+}
 
-message NewBlockRequest { string block_data = 1; }
+message Transaction { 
+  int32 VersionNumber = 1; 
+  string Patient_Ad = 2; 
+  string VOAddress = 3; 
+  int32 HippaID = 4; 
+  bool SummaryAvail = 5; 
+  string Data = 6; 
+  string RequestorAddress = 7; 
+  string Approval = 8; 
+  string TransactionHash = 9; 
+  patientDB patient_db = 10; 
+}
+
+message patientDB {
+    repeated patient patients = 1; 
+}
+
+message patient {
+    string first_name = 1;
+    string last_name = 2;
+    string email = 3;
+}
+
+message NewBlockRequest { Block newBlock = 1; }
+
+message Block {
+    string MagicNumber = 1; 
+    int32 Blocksize = 2; 
+    repeated Transaction Transactions_input = 3; 
+    repeated string Transactions = 4; 
+    int32 TransactionCounter = 5; 
+    Header BlockHeader = 6; 
+    string Blockhash = 7; 
+}
+
+message Header {
+    repeated string Block_Transactions = 1; 
+    int32 Version = 2; 
+    string hashPrevBlock = 3; 
+    repeated string MerkleTree = 4; 
+    int64 Timestamp = 5; 
+    int32 Bits = 6; 
+    int32 Nonce = 7; 
+}
 
 // These messages deal with the retrieval of health records
 

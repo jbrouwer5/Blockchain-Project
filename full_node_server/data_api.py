@@ -1,4 +1,5 @@
 import pandas as pd 
+# functions for loading data from csv mock database 
 
 def load_data(file_path):
     df = pd.read_csv(file_path) 
