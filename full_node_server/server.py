@@ -22,10 +22,37 @@ from problem2 import load_transactions_from_csv
 from protoConvert import to_proto_transaction, from_proto_transaction, from_proto_block, to_proto_block
 
 
+class Mempool:
+    def __init__(self):
+        self.transactions = []
+
+    def add_transaction(self, transaction):
+        #Add a transaction to the mempool.
+        self.transactions.append(transaction)
+        print(f"Transaction {transaction.TransactionHash} added to mempool", flush=True)
+
+    def get_transactions(self):
+        #Retrieve all transactions in the mempool.
+        return self.transactions
+
+    def remove_transaction(self, transaction_hash):
+        #Remove a transaction from the mempool by its hash.
+        self.transactions = [
+            tx for tx in self.transactions if tx.TransactionHash != transaction_hash
+        ]
+        print(f"Transaction {transaction_hash} removed from mempool", flush=True)
+
+    def clear_mempool(self):
+        #Clear all transactions from the mempool.
+        self.transactions = []
+        print("Mempool cleared", flush=True)
+
+
+
 class HealthNodeService(health_service_pb2_grpc.HealthServiceServicer):
     def __init__(self, session_factory):
         self.known_peers = []
-        self.mempool = ""  # TODO add mempool class
+        self.mempool = Mempool()  # TODO add mempool class
         self.patient_db = PatientDB() #an instance of the patient database to hole PatientWallet objects
         self.blockchain = Blockchain(self.patient_db) # TODO add blockchain class
         self.local_address = ""  #  Set after server starts
