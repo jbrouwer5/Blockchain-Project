@@ -347,8 +347,8 @@ def main():
                     ))
 
 
-    # print("\nPrinting all transactions associated with a given patient address")
-    # b.print_patient_transactions(transactions[0].PatientAddress)
+    print("\nPrinting all transactions associated with a given patient address")
+    health_node_service.blockchain.print_patient_transactions(transactions[0].PatientAddress)
 
     print("\nPrinting summary of transactions associated with a given HIPAA ID")
     health_node_service.blockchain.print_hippa_summary(transactions[0].HippaID)
@@ -368,10 +368,10 @@ def main():
     # ))
     print("\nprint the new updated transaction with new RequestorAddress, Approval and Hash\n")
     approval_tx.printTransaction()
-    print("\nnow lets confirm it returns the correct database id from the MOCK_DATA.csv\n")
+    print("\nnow lets confirm it returns the correct database id\n")
     vo_submission = requester.requestor_generate(approval_tx.Approval)
     retrieved_record_id = vo.vo_verify(vo_submission)
-    print("Retrieved Record ID:", retrieved_record_id)
+    print("Retrieved Record ID:", retrieved_record_id, "\n")
     
     try:
         while True:
